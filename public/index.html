@@ -1,852 +1,107 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Do I Have an Employment Law Case? Free Claim Evaluator | WorkerRights.ai</title>
-<meta name="description" content="Find out in minutes if you have a strong employment law claim. Free, confidential AI-powered case evaluator for wrongful termination, discrimination, wage theft, harassment, and more.">
-<meta name="keywords" content="do I have an employment law case, wrongful termination lawyer, employment discrimination attorney, wage theft claim, harassment at work, free case evaluation, employment attorney near me, EEOC claim, hostile work environment, retaliation at work">
-<meta property="og:title" content="Do I Have an Employment Law Case? Free AI Evaluator">
-<meta property="og:description" content="Confidential. Free. Powered by AI. Find out if your workplace situation may entitle you to compensation.">
-<meta property="og:type" content="website">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"LegalService","name":"WorkerRights.ai","description":"Free AI-powered employment law case evaluation","serviceType":"Employment Law Case Evaluation","areaServed":"United States","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-<style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --navy:#0D1B2A;--navy-mid:#1B2E44;--gold:#C9A84C;--gold-light:#E2C87A;--gold-pale:#F5EDD6;
-  --white:#FAFAF8;--gray-100:#F2F0EB;--gray-200:#E0DDD5;--gray-400:#9C9890;--gray-600:#5C5A55;
-  --green:#2E6B4F;--green-bg:#EAF3DE;--green-border:#C0DD97;
-  --amber:#B07010;--amber-bg:#FAEEDA;--amber-border:#FAC775;
-  --red:#993C1D;--text:#1A1816;
-  --font-display:'Playfair Display',Georgia,serif;--font-body:'DM Sans',system-ui,sans-serif;
-  --radius:4px;--radius-lg:8px;--transition:0.18s ease;
-}
-html{scroll-behavior:smooth}
-body{font-family:var(--font-body);background:var(--white);color:var(--text);line-height:1.6;min-height:100vh}
-
-/* NAV */
-nav{position:sticky;top:0;z-index:100;background:var(--navy);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:60px;border-bottom:1px solid rgba(201,168,76,0.3)}
-.nav-logo{font-family:var(--font-display);font-size:1.1rem;color:var(--gold);text-decoration:none}
-.nav-links{display:flex;gap:2rem;list-style:none}
-.nav-links a{color:rgba(255,255,255,0.65);text-decoration:none;font-size:0.85rem;transition:color var(--transition)}
-.nav-links a:hover{color:var(--gold)}
-
-/* HERO */
-.hero{background:var(--navy);padding:5rem 2rem 4rem;text-align:center;position:relative;overflow:hidden}
-.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(201,168,76,0.08) 0%,transparent 70%);pointer-events:none}
-.eyebrow{font-size:0.72rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--gold);font-weight:500;margin-bottom:1.25rem}
-.hero h1{font-family:var(--font-display);font-size:clamp(2rem,5vw,3.25rem);color:var(--white);line-height:1.15;max-width:700px;margin:0 auto 1.25rem;font-weight:700}
-.hero h1 em{font-style:italic;color:var(--gold-light)}
-.hero-sub{font-size:1.05rem;color:rgba(255,255,255,0.6);max-width:520px;margin:0 auto 2.5rem;font-weight:300;line-height:1.7}
-.hero-stats{display:flex;justify-content:center;gap:3rem;margin-bottom:2.5rem;flex-wrap:wrap}
-.stat-num{font-family:var(--font-display);font-size:1.75rem;color:var(--gold);display:block;line-height:1;margin-bottom:4px}
-.stat-label{font-size:0.72rem;color:rgba(255,255,255,0.45);letter-spacing:0.05em;text-transform:uppercase}
-.btn-gold{display:inline-flex;align-items:center;gap:10px;background:var(--gold);color:var(--navy);padding:0.9rem 2.25rem;border-radius:var(--radius);font-weight:500;font-size:0.95rem;text-decoration:none;letter-spacing:0.02em;transition:background var(--transition),transform var(--transition);cursor:pointer;border:none;font-family:var(--font-body)}
-.btn-gold:hover{background:var(--gold-light);transform:translateY(-1px)}
-.hero-disclaimer{margin-top:1.25rem;font-size:0.72rem;color:rgba(255,255,255,0.3)}
-
-/* TRUST BAR */
-.trust-bar{background:var(--gray-100);border-bottom:1px solid var(--gray-200);padding:0.9rem 2rem;display:flex;justify-content:center;gap:3rem;flex-wrap:wrap}
-.trust-item{display:flex;align-items:center;gap:8px;font-size:0.8rem;color:var(--gray-600)}
-.trust-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);flex-shrink:0}
-
-/* CLAIM TYPES */
-.section{padding:4rem 2rem;max-width:1100px;margin:0 auto}
-.section-label{font-size:0.72rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--gold);font-weight:500;margin-bottom:0.75rem}
-.section-title{font-family:var(--font-display);font-size:clamp(1.5rem,3vw,2.1rem);color:var(--navy);margin-bottom:0.75rem;line-height:1.25}
-.section-sub{color:var(--gray-600);font-size:0.95rem;max-width:540px;margin-bottom:2.5rem;line-height:1.7}
-.claim-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1px;background:var(--gray-200);border:1px solid var(--gray-200);border-radius:var(--radius-lg);overflow:hidden}
-.claim-card{background:var(--white);padding:1.5rem;cursor:pointer;transition:background var(--transition);position:relative}
-.claim-card:hover{background:var(--gold-pale)}
-.claim-icon{font-size:1.4rem;margin-bottom:0.75rem;display:block}
-.claim-title{font-weight:500;font-size:0.95rem;color:var(--navy);margin-bottom:0.4rem}
-.claim-desc{font-size:0.82rem;color:var(--gray-600);line-height:1.55}
-.claim-arrow{position:absolute;right:1.25rem;top:50%;transform:translateY(-50%);color:var(--gold);opacity:0;transition:opacity var(--transition)}
-.claim-card:hover .claim-arrow{opacity:1}
-
-/* EVALUATOR WRAPPER */
-.eval-section{background:var(--navy);padding:5rem 2rem;position:relative}
-.eval-section::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 100%,rgba(201,168,76,0.06) 0%,transparent 65%);pointer-events:none}
-.eval-inner{max-width:740px;margin:0 auto;position:relative}
-.eval-header{text-align:center;margin-bottom:2.5rem}
-.eval-header .section-title{color:var(--white)}
-.eval-header .section-sub{color:rgba(255,255,255,0.5);margin:0 auto}
-
-/* EVALUATOR CARD */
-#evaluator{background:var(--white);border-radius:var(--radius-lg);overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,0.35)}
-.eval-progress{height:3px;background:var(--gray-200)}
-.eval-progress-fill{height:100%;background:var(--gold);transition:width 0.4s ease}
-
-/* PHASES */
-.phase{display:none}
-.phase.active{display:block}
-
-/* FORM PHASE */
-.form-step{display:none;padding:2.25rem 2.5rem;animation:fadeUp 0.22s ease}
-.form-step.active{display:block}
-@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-.step-meta{font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--gray-400);margin-bottom:0.5rem}
-.step-q{font-family:var(--font-display);font-size:1.25rem;color:var(--navy);margin-bottom:0.4rem;line-height:1.3;font-weight:700}
-.step-hint{font-size:0.83rem;color:var(--gray-600);margin-bottom:1.6rem;line-height:1.6}
-.options{display:flex;flex-direction:column;gap:0.55rem}
-.opt{display:flex;align-items:flex-start;gap:12px;padding:0.85rem 1rem;border:1px solid var(--gray-200);border-radius:var(--radius);cursor:pointer;transition:all var(--transition);background:var(--white);text-align:left;width:100%;font-family:var(--font-body)}
-.opt:hover{border-color:var(--gold);background:var(--gold-pale)}
-.opt.sel{border-color:var(--gold);background:var(--gold-pale)}
-.opt-ring{width:18px;height:18px;border:1.5px solid var(--gray-200);border-radius:50%;flex-shrink:0;margin-top:2px;transition:all var(--transition);position:relative}
-.opt.sel .opt-ring{border-color:var(--gold);background:var(--gold)}
-.opt.sel .opt-ring::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:6px;height:6px;border-radius:50%;background:white}
-.opt.multi .opt-ring{border-radius:3px}
-.opt-text{font-size:0.88rem;color:var(--navy);line-height:1.45}
-.opt-sub{font-size:0.76rem;color:var(--gray-400);display:block;margin-top:2px}
-.field-label{font-size:0.78rem;color:var(--gray-600);margin-bottom:0.3rem;display:block;font-weight:500}
-.field{width:100%;padding:0.75rem 1rem;border:1px solid var(--gray-200);border-radius:var(--radius);font-family:var(--font-body);font-size:0.9rem;color:var(--navy);outline:none;transition:border-color var(--transition);background:var(--white);margin-bottom:0.75rem}
-.field:focus{border-color:var(--gold)}
-.field-row{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem}
-.form-nav{display:flex;justify-content:space-between;align-items:center;padding:1.1rem 2.5rem;border-top:1px solid var(--gray-100);background:var(--gray-100)}
-.btn-back{font-size:0.83rem;color:var(--gray-400);background:none;border:none;cursor:pointer;font-family:var(--font-body);padding:0.5rem;transition:color var(--transition)}
-.btn-back:hover{color:var(--navy)}
-.btn-next{background:var(--navy);color:var(--white);border:none;padding:0.7rem 1.75rem;border-radius:var(--radius);font-size:0.88rem;font-weight:500;cursor:pointer;font-family:var(--font-body);transition:background var(--transition),opacity var(--transition)}
-.btn-next:disabled{opacity:0.3;cursor:not-allowed}
-.btn-next:not(:disabled):hover{background:var(--navy-mid)}
-
-/* CHAT PHASE */
-.chat-phase{padding:0}
-.chat-header{padding:1.5rem 2rem 1rem;border-bottom:1px solid var(--gray-100)}
-.chat-header-top{display:flex;align-items:center;gap:12px;margin-bottom:0.3rem}
-.chat-avatar{width:36px;height:36px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.chat-avatar svg{width:18px;height:18px;fill:var(--gold)}
-.chat-name{font-weight:500;font-size:0.92rem;color:var(--navy)}
-.chat-status{font-size:0.72rem;color:var(--green);display:flex;align-items:center;gap:4px}
-.chat-status::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block}
-.chat-subtitle{font-size:0.78rem;color:var(--gray-400);padding-left:48px}
-.chat-messages{padding:1.25rem 1.5rem;min-height:320px;max-height:460px;overflow-y:auto;display:flex;flex-direction:column;gap:1rem}
-.msg{display:flex;gap:10px;animation:fadeUp 0.2s ease}
-.msg.user{flex-direction:row-reverse}
-.msg-bubble{max-width:82%;padding:0.7rem 1rem;border-radius:var(--radius-lg);font-size:0.88rem;line-height:1.6}
-.msg.ai .msg-bubble{background:var(--gray-100);color:var(--navy);border-bottom-left-radius:var(--radius)}
-.msg.user .msg-bubble{background:var(--navy);color:var(--white);border-bottom-right-radius:var(--radius)}
-.msg-avatar{width:28px;height:28px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
-.msg-avatar svg{width:13px;height:13px;fill:var(--gold)}
-.msg-avatar.user-av{background:var(--gray-200)}
-.typing{display:flex;gap:4px;align-items:center;padding:0.7rem 1rem;background:var(--gray-100);border-radius:var(--radius-lg);border-bottom-left-radius:var(--radius);width:fit-content}
-.typing span{width:7px;height:7px;border-radius:50%;background:var(--gray-400);animation:bounce 1.2s infinite}
-.typing span:nth-child(2){animation-delay:0.15s}
-.typing span:nth-child(3){animation-delay:0.3s}
-@keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
-.chat-input-area{padding:1rem 1.5rem;border-top:1px solid var(--gray-100);display:flex;gap:10px;align-items:flex-end}
-.chat-input{flex:1;padding:0.75rem 1rem;border:1px solid var(--gray-200);border-radius:var(--radius-lg);font-family:var(--font-body);font-size:0.88rem;color:var(--navy);outline:none;resize:none;line-height:1.5;transition:border-color var(--transition);min-height:44px;max-height:140px}
-.chat-input:focus{border-color:var(--gold)}
-.chat-send{background:var(--navy);color:var(--white);border:none;width:40px;height:40px;border-radius:var(--radius);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background var(--transition)}
-.chat-send:hover{background:var(--navy-mid)}
-.chat-send:disabled{opacity:0.3;cursor:not-allowed}
-.chat-send svg{width:16px;height:16px;fill:none;stroke:white;stroke-width:2}
-.chat-disclaimer{padding:0.6rem 1.5rem;font-size:0.7rem;color:var(--gray-400);border-top:1px solid var(--gray-100);line-height:1.5}
-
-/* RESULTS PHASE */
-.results-phase{padding:2.25rem 2.5rem}
-.result-block{border-radius:var(--radius-lg);padding:1.75rem;margin-bottom:1.5rem}
-.result-block.high{background:var(--green-bg);border:1px solid var(--green-border)}
-.result-block.medium{background:var(--amber-bg);border:1px solid var(--amber-border)}
-.result-block.low{background:var(--gray-100);border:1px solid var(--gray-200)}
-.result-tier{font-size:0.7rem;letter-spacing:0.15em;text-transform:uppercase;font-weight:500;margin-bottom:0.5rem}
-.result-block.high .result-tier{color:#3B6D11}
-.result-block.medium .result-tier{color:#854F0B}
-.result-block.low .result-tier{color:var(--gray-600)}
-.result-headline{font-family:var(--font-display);font-size:1.35rem;line-height:1.25;margin-bottom:0.6rem}
-.result-block.high .result-headline{color:#27500A}
-.result-block.medium .result-headline{color:#633806}
-.result-block.low .result-headline{color:var(--navy)}
-.result-body{font-size:0.87rem;line-height:1.7}
-.result-block.high .result-body{color:#3B6D11}
-.result-block.medium .result-body{color:#854F0B}
-.result-block.low .result-body{color:var(--gray-600)}
-.result-factors{margin-bottom:1.5rem}
-.factors-label{font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--gray-400);font-weight:500;margin-bottom:0.9rem}
-.factor{display:flex;gap:10px;padding:0.65rem 0;border-bottom:1px solid var(--gray-100);font-size:0.86rem}
-.factor:last-child{border-bottom:none}
-.factor-icon{flex-shrink:0;font-size:13px;margin-top:2px}
-.factor-text{flex:1;color:var(--navy);line-height:1.45}
-.factor-note{font-size:0.76rem;color:var(--gray-400);display:block;margin-top:1px}
-.cta-block{background:var(--navy);border-radius:var(--radius-lg);padding:1.75rem;text-align:center}
-.cta-title{font-family:var(--font-display);color:var(--white);font-size:1.15rem;margin-bottom:0.5rem}
-.cta-sub{color:rgba(255,255,255,0.5);font-size:0.82rem;margin-bottom:1.25rem;line-height:1.6}
-.cta-btn{display:inline-flex;align-items:center;gap:8px;background:var(--gold);color:var(--navy);padding:0.8rem 2rem;border-radius:var(--radius);font-weight:500;font-size:0.88rem;cursor:pointer;border:none;font-family:var(--font-body);transition:background var(--transition)}
-.cta-btn:hover{background:var(--gold-light)}
-.cta-privacy{font-size:0.7rem;color:rgba(255,255,255,0.25);margin-top:0.75rem}
-
-/* HOW IT WORKS */
-.how-section{padding:4rem 2rem;max-width:900px;margin:0 auto}
-.how-steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:2rem;margin-top:2.5rem}
-.how-num{font-family:var(--font-display);font-size:2.5rem;color:var(--gold-pale);line-height:1;margin-bottom:0.5rem;font-weight:700}
-.how-title{font-weight:500;font-size:0.93rem;color:var(--navy);margin-bottom:0.4rem}
-.how-desc{font-size:0.82rem;color:var(--gray-600);line-height:1.6}
-
-/* FAQ */
-.faq-section{background:var(--gray-100);padding:4rem 2rem}
-.faq-inner{max-width:720px;margin:0 auto}
-.faq-item{border-bottom:1px solid var(--gray-200)}
-.faq-q{display:flex;justify-content:space-between;align-items:center;padding:1.1rem 0;cursor:pointer;font-weight:500;font-size:0.9rem;color:var(--navy);gap:1rem;background:none;border:none;text-align:left;width:100%;font-family:var(--font-body)}
-.faq-toggle{font-size:1.1rem;color:var(--gold);flex-shrink:0;transition:transform var(--transition)}
-.faq-item.open .faq-toggle{transform:rotate(45deg)}
-.faq-a{display:none;padding-bottom:1.1rem;font-size:0.86rem;color:var(--gray-600);line-height:1.7}
-.faq-item.open .faq-a{display:block}
-
-/* FOOTER */
-footer{background:var(--navy);color:rgba(255,255,255,0.35);padding:2rem;text-align:center;font-size:0.77rem;line-height:1.9;border-top:1px solid rgba(201,168,76,0.15)}
-footer a{color:rgba(255,255,255,0.45);text-decoration:none}
-footer a:hover{color:var(--gold)}
-
-#evaluator-anchor{scroll-margin-top:80px}
-</style>
-</head>
-<body>
-
-<nav>
-  <a href="/" class="nav-logo">WorkerRights<span style="color:rgba(255,255,255,0.35)">.ai</span></a>
-  <ul class="nav-links">
-    <li><a href="#claim-types">Claim types</a></li>
-    <li><a href="#how-it-works">How it works</a></li>
-    <li><a href="#faq">FAQ</a></li>
-    <li><a href="#evaluator-anchor" style="color:var(--gold)">Evaluate my case →</a></li>
-  </ul>
-</nav>
-
-<section class="hero">
-  <p class="eyebrow">Free · Confidential · AI-Powered</p>
-  <h1>Do you have a <em>strong</em> employment law case?</h1>
-  <p class="hero-sub">Millions of workers are owed compensation they never collect — because they don't know they have a claim. Our AI evaluator helps you find out in minutes.</p>
-  <div class="hero-stats">
-    <div><span class="stat-num">$17B</span><span class="stat-label">Recovered annually</span></div>
-    <div><span class="stat-num">67%</span><span class="stat-label">Of claims go unfiled</span></div>
-    <div><span class="stat-num">AI</span><span class="stat-label">Powered evaluation</span></div>
-  </div>
-  <button class="btn-gold" onclick="document.getElementById('evaluator-anchor').scrollIntoView({behavior:'smooth'})">
-    Evaluate my case — free
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
-  </button>
-  <p class="hero-disclaimer">No login required. No attorney-client relationship is formed by using this tool.</p>
-</section>
-
-<div class="trust-bar">
-  <div class="trust-item"><div class="trust-dot"></div>100% confidential</div>
-  <div class="trust-item"><div class="trust-dot"></div>No spam or robocalls</div>
-  <div class="trust-item"><div class="trust-dot"></div>Built by employment attorneys</div>
-  <div class="trust-item"><div class="trust-dot"></div>AI-powered case analysis</div>
-  <div class="trust-item"><div class="trust-dot"></div>All 50 states</div>
-</div>
-
-<section class="section" id="claim-types">
-  <p class="section-label">What we evaluate</p>
-  <h2 class="section-title">Common employment claims</h2>
-  <p class="section-sub">Our AI evaluator covers the most common — and most valuable — employment law claims. Click any to start your evaluation.</p>
-  <div class="claim-grid">
-    <div class="claim-card" onclick="document.getElementById('evaluator-anchor').scrollIntoView({behavior:'smooth'})">
-      <span class="claim-icon">⚖️</span>
-      <div class="claim-title">Wrongful termination</div>
-      <div class="claim-desc">Fired for illegal reasons — discrimination, retaliation, whistleblowing, or in violation of your contract.</div>
-      <span class="claim-arrow">→</span>
-    </div>
-    <div class="claim-card" onclick="document.getElementById('evaluator-anchor').scrollIntoView({behavior:'smooth'})">
-      <span class="claim-icon">🛡️</span>
-      <div class="claim-title">Discrimination</div>
-      <div class="claim-desc">Treated differently because of race, gender, age, disability, religion, national origin, or other protected characteristic.</div>
-      <span class="claim-arrow">→</span>
-    </div>
-    <div class="claim-card" onclick="document.getElementById('evaluator-anchor').scrollIntoView({behavior:'smooth'})">
-      <span class="claim-icon">🚫</span>
-      <div class="claim-title">Harassment</div>
-      <div class="claim-desc">Sexual harassment, hostile work environment, or unwanted conduct that affected your ability to do your job.</div>
-      <span class="claim-arrow">→</span>
-    </div>
-    <div class="claim-card" onclick="document.getElementById('evaluator-anchor').scrollIntoView({behavior:'smooth'})">
-      <span class="claim-icon">💰</span>
-      <div class="claim-title">Wage & hour theft</div>
-      <div class="claim-desc">Unpaid overtime, minimum wage violations, misclassification as contractor, or off-the-clock work demands.</div>
-      <span class="claim-arrow">→</span>
-    </div>
-    <div class="claim-card" onclick="document.getElementById('evaluator-anchor').scrollIntoView({behavior:'smooth'})">
-      <span class="claim-icon">📢</span>
-      <div class="claim-title">Retaliation</div>
-      <div class="claim-desc">Punished for reporting misconduct, filing a complaint, taking protected leave, or exercising your legal rights.</div>
-      <span class="claim-arrow">→</span>
-    </div>
-    <div class="claim-card" onclick="document.getElementById('evaluator-anchor').scrollIntoView({behavior:'smooth'})">
-      <span class="claim-icon">🔍</span>
-      <div class="claim-title">Not sure what I have</div>
-      <div class="claim-desc">Let our AI identify the strongest potential claims based on what happened to you.</div>
-      <span class="claim-arrow">→</span>
-    </div>
-  </div>
-</section>
-
-<!-- ============================================================ EVALUATOR -->
-<section class="eval-section" id="evaluator-anchor">
-  <div class="eval-inner">
-    <div class="eval-header">
-      <p class="section-label">Case evaluator</p>
-      <h2 class="section-title">Find out where you stand</h2>
-      <p class="section-sub">Start with a few quick questions, then our AI will have a conversation with you about what happened — and tell you honestly what it thinks.</p>
-    </div>
-
-    <div id="evaluator">
-      <div class="eval-progress"><div class="eval-progress-fill" id="prog" style="width:8%"></div></div>
-
-      <!-- ====== PHASE 1: STRUCTURED FORM ====== -->
-      <div class="phase active" id="phase-form">
-
-        <!-- Step 1 -->
-        <div class="form-step active" data-step="1">
-          <p class="step-meta">Step 1 of 5 — Your situation</p>
-          <h3 class="step-q">What best describes your current situation?</h3>
-          <p class="step-hint">Select the option that most closely matches what you're experiencing.</p>
-          <div class="options">
-            <button class="opt" onclick="pick(this,'situation','terminated',3)"><div class="opt-ring"></div><div class="opt-text">I was fired or laid off<span class="opt-sub">Including "forced to resign" or pressured to quit</span></div></button>
-            <button class="opt" onclick="pick(this,'situation','current',2)"><div class="opt-ring"></div><div class="opt-text">I'm still employed but something wrong is happening<span class="opt-sub">Discrimination, harassment, wage issues, demotion</span></div></button>
-            <button class="opt" onclick="pick(this,'situation','resigned',2)"><div class="opt-ring"></div><div class="opt-text">I resigned because conditions became intolerable<span class="opt-sub">May qualify as constructive dismissal</span></div></button>
-            <button class="opt" onclick="pick(this,'situation','past',1)"><div class="opt-ring"></div><div class="opt-text">This happened in the past and I'm no longer with that employer</div></button>
-          </div>
-        </div>
-
-        <!-- Step 2 -->
-        <div class="form-step" data-step="2">
-          <p class="step-meta">Step 2 of 5 — Nature of the issue</p>
-          <h3 class="step-q">What do you believe happened to you?</h3>
-          <p class="step-hint">Select all that apply — multiple claim types can strengthen your case.</p>
-          <div class="options">
-            <button class="opt multi" onclick="tog(this,'discrimination',4)"><div class="opt-ring"></div><div class="opt-text">Discrimination based on race, gender, age, disability, religion, or national origin<span class="opt-sub">Strong federal claim potential</span></div></button>
-            <button class="opt multi" onclick="tog(this,'harassment',4)"><div class="opt-ring"></div><div class="opt-text">Sexual harassment or hostile work environment<span class="opt-sub">Including quid pro quo or severe/pervasive conduct</span></div></button>
-            <button class="opt multi" onclick="tog(this,'retaliation',4)"><div class="opt-ring"></div><div class="opt-text">Retaliation for complaining, reporting, or taking leave<span class="opt-sub">Including FMLA retaliation and whistleblower claims</span></div></button>
-            <button class="opt multi" onclick="tog(this,'wage',3)"><div class="opt-ring"></div><div class="opt-text">Unpaid wages, overtime, or misclassification<span class="opt-sub">Including contractor misclassification and off-the-clock work</span></div></button>
-            <button class="opt multi" onclick="tog(this,'contract',2)"><div class="opt-ring"></div><div class="opt-text">Breach of employment contract or promised terms</div></button>
-            <button class="opt multi" onclick="tog(this,'unsure',1)"><div class="opt-ring"></div><div class="opt-text">Not sure — I'll describe it and let the AI identify claims</div></button>
-          </div>
-        </div>
-
-        <!-- Step 3 -->
-        <div class="form-step" data-step="3">
-          <p class="step-meta">Step 3 of 5 — Your employer</p>
-          <h3 class="step-q">How large is (or was) your employer?</h3>
-          <p class="step-hint">Employer size determines which federal and state protections apply to you.</p>
-          <div class="options">
-            <button class="opt" onclick="pick(this,'empSize','large',4)"><div class="opt-ring"></div><div class="opt-text">500+ employees<span class="opt-sub">Maximum federal protections — Title VII cap is $300k</span></div></button>
-            <button class="opt" onclick="pick(this,'empSize','mid',3)"><div class="opt-ring"></div><div class="opt-text">101–500 employees<span class="opt-sub">Title VII and ADA fully apply</span></div></button>
-            <button class="opt" onclick="pick(this,'empSize','small_mid',2)"><div class="opt-ring"></div><div class="opt-text">15–100 employees<span class="opt-sub">Some federal protections; state law often stronger</span></div></button>
-            <button class="opt" onclick="pick(this,'empSize','small',1)"><div class="opt-ring"></div><div class="opt-text">Fewer than 15 employees<span class="opt-sub">Limited federal coverage; state laws vary</span></div></button>
-            <button class="opt" onclick="pick(this,'empSize','unknown',1)"><div class="opt-ring"></div><div class="opt-text">Not sure of the exact size</div></button>
-          </div>
-        </div>
-
-        <!-- Step 4 -->
-        <div class="form-step" data-step="4">
-          <p class="step-meta">Step 4 of 5 — Timeline</p>
-          <h3 class="step-q">When did the main incident or termination occur?</h3>
-          <p class="step-hint">Employment claims have strict filing deadlines. This is one of the most important factors.</p>
-          <div class="options">
-            <button class="opt" onclick="pick(this,'timeline','under90',4)"><div class="opt-ring"></div><div class="opt-text">Within the last 90 days<span class="opt-sub">All options open — act while you have maximum flexibility</span></div></button>
-            <button class="opt" onclick="pick(this,'timeline','under6mo',4)"><div class="opt-ring"></div><div class="opt-text">3–6 months ago<span class="opt-sub">Strong timing — most deadlines still open</span></div></button>
-            <button class="opt" onclick="pick(this,'timeline','under1yr',3)"><div class="opt-ring"></div><div class="opt-text">6 months to 1 year ago<span class="opt-sub">Some EEOC deadlines approaching — act promptly</span></div></button>
-            <button class="opt" onclick="pick(this,'timeline','under2yr',2)"><div class="opt-ring"></div><div class="opt-text">1–2 years ago<span class="opt-sub">Some claims may be limited — consult an attorney soon</span></div></button>
-            <button class="opt" onclick="pick(this,'timeline','over2yr',1)"><div class="opt-ring"></div><div class="opt-text">More than 2 years ago<span class="opt-sub">Many deadlines passed — wage claims may still apply</span></div></button>
-          </div>
-        </div>
-
-        <!-- Step 5: Contact -->
-        <div class="form-step" data-step="5">
-          <p class="step-meta">Step 5 of 5 — Your information</p>
-          <h3 class="step-q">Almost there — let's get to know you</h3>
-          <p class="step-hint">Our AI will then speak with you directly. Your information stays strictly confidential.</p>
-          <div class="field-row">
-            <div><label class="field-label">First name *</label><input class="field" id="f-first" type="text" placeholder="Jane" oninput="checkContact()"></div>
-            <div><label class="field-label">Last name *</label><input class="field" id="f-last" type="text" placeholder="Smith" oninput="checkContact()"></div>
-          </div>
-          <label class="field-label">Email address *</label>
-          <input class="field" id="f-email" type="email" placeholder="jane@email.com" oninput="checkContact()">
-          <label class="field-label">Phone (optional)</label>
-          <input class="field" id="f-phone" type="tel" placeholder="(555) 000-0000">
-          <label class="field-label">State where employment occurred *</label>
-          <select class="field" id="f-state" onchange="checkContact()">
-            <option value="">Select state...</option>
-            <option>Alabama</option><option>Alaska</option><option>Arizona</option><option>Arkansas</option><option>California</option><option>Colorado</option><option>Connecticut</option><option>Delaware</option><option>Florida</option><option>Georgia</option><option>Hawaii</option><option>Idaho</option><option>Illinois</option><option>Indiana</option><option>Iowa</option><option>Kansas</option><option>Kentucky</option><option>Louisiana</option><option>Maine</option><option>Maryland</option><option>Massachusetts</option><option>Michigan</option><option>Minnesota</option><option>Mississippi</option><option>Missouri</option><option>Montana</option><option>Nebraska</option><option>Nevada</option><option>New Hampshire</option><option>New Jersey</option><option>New Mexico</option><option>New York</option><option>North Carolina</option><option>North Dakota</option><option>Ohio</option><option>Oklahoma</option><option>Oregon</option><option>Pennsylvania</option><option>Rhode Island</option><option>South Carolina</option><option>South Dakota</option><option>Tennessee</option><option>Texas</option><option>Utah</option><option>Vermont</option><option>Virginia</option><option>Washington</option><option>West Virginia</option><option>Wisconsin</option><option>Wyoming</option>
-          </select>
-          <p style="font-size:0.71rem;color:var(--gray-400);line-height:1.6;margin-top:0.25rem">By continuing, you agree that an employment attorney may contact you regarding your claim. No attorney-client relationship is formed until a retainer is signed.</p>
-        </div>
-
-        <div class="form-nav">
-          <button class="btn-back" id="form-back" onclick="formBack()" style="visibility:hidden">← Back</button>
-          <button class="btn-next" id="form-next" onclick="formNext()" disabled>Continue →</button>
-        </div>
-      </div><!-- /phase-form -->
-
-      <!-- ====== PHASE 2: AI CHAT ====== -->
-      <div class="phase" id="phase-chat">
-        <div class="chat-phase">
-          <div class="chat-header">
-            <div class="chat-header-top">
-              <div class="chat-avatar">
-                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
-              </div>
-              <div>
-                <div class="chat-name">Case Intake Advisor</div>
-                <div class="chat-status">Online — ready to evaluate your case</div>
-              </div>
-            </div>
-            <div class="chat-subtitle">AI-powered · Confidential · Not legal advice</div>
-          </div>
-          <div class="chat-messages" id="chat-msgs"></div>
-          <div class="chat-input-area">
-            <textarea class="chat-input" id="chat-input" placeholder="Type your response here..." rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
-            <button class="chat-send" id="chat-send" onclick="sendMsg()" disabled>
-              <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-            </button>
-          </div>
-          <div class="chat-disclaimer">This AI conversation is for informational purposes only and does not constitute legal advice. No attorney-client relationship is created by this interaction.</div>
-        </div>
-      </div><!-- /phase-chat -->
-
-      <!-- ====== PHASE 3: RESULTS ====== -->
-      <div class="phase" id="phase-results">
-        <div class="results-phase" id="results-content"></div>
-      </div>
-
-    </div><!-- /evaluator -->
-  </div>
-</section>
-
-<section class="how-section" id="how-it-works">
-  <p class="section-label">The process</p>
-  <h2 class="section-title">How it works</h2>
-  <p class="section-sub">Fast, private, and genuinely useful — designed by employment attorneys to surface the cases that matter.</p>
-  <div class="how-steps">
-    <div><div class="how-num">01</div><div class="how-title">Quick screening form</div><div class="how-desc">5 questions about your situation, employer, and timeline. Takes under 2 minutes.</div></div>
-    <div><div class="how-num">02</div><div class="how-title">AI intake conversation</div><div class="how-desc">Our AI speaks with you directly — asks the follow-up questions an employment attorney would ask.</div></div>
-    <div><div class="how-num">03</div><div class="how-title">Honest case assessment</div><div class="how-desc">You'll get a real evaluation: what claims likely apply, how strong they are, and what deadlines you face.</div></div>
-    <div><div class="how-num">04</div><div class="how-title">Connect with an attorney</div><div class="how-desc">If your case shows real potential, we'll connect you with an experienced employment attorney for a free consultation.</div></div>
-  </div>
-</section>
-
-<section class="faq-section" id="faq">
-  <div class="faq-inner">
-    <p class="section-label" style="text-align:center">Questions</p>
-    <h2 class="section-title" style="text-align:center;margin-bottom:2.5rem">Frequently asked questions</h2>
-    <div class="faq-item"><button class="faq-q" onclick="faq(this)">Does using this tool create an attorney-client relationship?<span class="faq-toggle">+</span></button><div class="faq-a">No. Completing this evaluation — including the AI conversation — does not create an attorney-client relationship. You are not represented by any attorney until you sign a formal retainer agreement.</div></div>
-    <div class="faq-item"><button class="faq-q" onclick="faq(this)">How confidential is my information?<span class="faq-toggle">+</span></button><div class="faq-a">Your information is kept strictly confidential. We do not sell, rent, or share your personal information with third parties outside of the attorney referral process.</div></div>
-    <div class="faq-item"><button class="faq-q" onclick="faq(this)">How much does a consultation cost?<span class="faq-toggle">+</span></button><div class="faq-a">The evaluation here is completely free. If we connect you with an attorney, the initial consultation is also free. Employment attorneys typically work on contingency — meaning they only get paid if you win.</div></div>
-    <div class="faq-item"><button class="faq-q" onclick="faq(this)">I signed a severance agreement. Do I still have options?<span class="faq-toggle">+</span></button><div class="faq-a">Possibly. Severance agreements can be challenged if signed under duress, without adequate time to review, or if they attempt to waive rights that can't legally be waived. An attorney should review your agreement.</div></div>
-    <div class="faq-item"><button class="faq-q" onclick="faq(this)">What if my employer made me sign an arbitration agreement?<span class="faq-toggle">+</span></button><div class="faq-a">Arbitration agreements don't eliminate your rights — they change the forum. Some claims (particularly sexual harassment under the EFAA) cannot be forced into arbitration. An attorney can assess enforceability.</div></div>
-    <div class="faq-item"><button class="faq-q" onclick="faq(this)">How long do I have to file a claim?<span class="faq-toggle">+</span></button><div class="faq-a">Deadlines vary by claim type and state. Federal discrimination claims typically require an EEOC charge within 180–300 days. Wage claims often allow 2–3 years. The sooner you act, the more options you have.</div></div>
-  </div>
-</section>
-
-<footer>
-  <p style="color:rgba(255,255,255,0.55);font-family:var(--font-display);font-size:1rem;margin-bottom:0.5rem">WorkerRights.ai</p>
-  <p>This website provides general legal information only and does not constitute legal advice.<br>No attorney-client relationship is created by using this site.</p>
-  <p style="margin-top:0.75rem"><a href="#">Privacy Policy</a> &nbsp;·&nbsp; <a href="#">Terms of Use</a> &nbsp;·&nbsp; <a href="#">Attorney Disclaimer</a></p>
-  <p style="margin-top:0.75rem">© 2025 WorkerRights.ai · All rights reserved</p>
-</footer>
-
-<script>
-// ============================================================
-// STATE
-// ============================================================
-const formData = {
-  situation: null, situationScore: 0,
-  claimTypes: [], claimTypeScore: 0,
-  empSize: null, empSizeScore: 0,
-  timeline: null, timelineScore: 0,
-  name: '', email: '', phone: '', state: ''
-};
-
-let formStep = 1;
-const FORM_STEPS = 5;
-const multiState = {};
-
-// ============================================================
-// FORM LOGIC
-// ============================================================
-function pick(el, key, val, score) {
-  el.closest('.options').querySelectorAll('.opt').forEach(o => o.classList.remove('sel'));
-  el.classList.add('sel');
-  formData[key] = val;
-  formData[key + 'Score'] = score;
-  document.getElementById('form-next').disabled = false;
-}
-
-function tog(el, key, score) {
-  el.classList.toggle('sel');
-  multiState[key] = { sel: el.classList.contains('sel'), score };
-  const anySelected = el.closest('.options').querySelectorAll('.opt.sel').length > 0;
-  document.getElementById('form-next').disabled = !anySelected;
-}
-
-function checkContact() {
-  const ok = document.getElementById('f-first').value.trim() &&
-             document.getElementById('f-last').value.trim() &&
-             document.getElementById('f-email').value.includes('@') &&
-             document.getElementById('f-state').value;
-  document.getElementById('form-next').disabled = !ok;
-}
-
-function formNext() {
-  if (formStep === 2) {
-    formData.claimTypes = Object.entries(multiState).filter(([,v])=>v.sel).map(([k])=>k);
-    formData.claimTypeScore = Math.min(formData.claimTypes.reduce((s,[k])=>s+(multiState[k]?.score||0),0), 8);
-    // reset for next multi step
-    Object.keys(multiState).forEach(k => delete multiState[k]);
-  }
-  if (formStep === 5) {
-    formData.name = document.getElementById('f-first').value.trim() + ' ' + document.getElementById('f-last').value.trim();
-    formData.email = document.getElementById('f-email').value.trim();
-    formData.phone = document.getElementById('f-phone').value.trim();
-    formData.state = document.getElementById('f-state').value;
-    startChat();
-    return;
-  }
-  document.querySelector(`.form-step[data-step="${formStep}"]`).classList.remove('active');
-  formStep++;
-  document.querySelector(`.form-step[data-step="${formStep}"]`).classList.add('active');
-  document.getElementById('form-back').style.visibility = 'visible';
-  const isMulti = [2].includes(formStep);
-  document.getElementById('form-next').disabled = !isMulti;
-  updateProg(formStep / (FORM_STEPS * 2));
-}
-
-function formBack() {
-  if (formStep <= 1) return;
-  document.querySelector(`.form-step[data-step="${formStep}"]`).classList.remove('active');
-  formStep--;
-  document.querySelector(`.form-step[data-step="${formStep}"]`).classList.add('active');
-  document.getElementById('form-back').style.visibility = formStep > 1 ? 'visible' : 'hidden';
-  document.getElementById('form-next').disabled = false;
-  updateProg(formStep / (FORM_STEPS * 2));
-}
-
-function updateProg(pct) {
-  document.getElementById('prog').style.width = Math.round(Math.min(pct, 1) * 100) + '%';
-}
-
-// ============================================================
-// CHAT PHASE
-// ============================================================
-const chatHistory = [];
-let chatLocked = false;
-let triageData = null;
-
-function startChat() {
-  document.getElementById('phase-form').classList.remove('active');
-  document.getElementById('phase-chat').classList.add('active');
-  updateProg(0.55);
-
-  const systemPrompt = buildSystemPrompt();
-  const openingContext = buildOpeningContext();
-
-  chatHistory.push({ role: 'user', content: openingContext });
-  aiRespond(systemPrompt);
-}
-
-function buildSystemPrompt() {
-  return `You are an expert employment law intake specialist working for a plaintiff-side employment law firm. Your job is to have a warm, empathetic, professional conversation with a potential client to understand what happened to them, assess the strength of their case, and gather the key facts an employment attorney needs.
-
-SCREENING FORM DATA ALREADY COLLECTED:
-- Situation: ${formData.situation}
-- Claim types indicated: ${formData.claimTypes.join(', ') || 'unsure'}
-- Employer size: ${formData.empSize}
-- Timeline: ${formData.timeline}
-- Name: ${formData.name}
-- State: ${formData.state}
-
-YOUR GOALS IN THIS CONVERSATION:
-1. Ask them to describe in their own words what happened — let them tell the story
-2. Probe for the legally significant details based on what they share:
-   - For discrimination/harassment: protected class, comparators, severity/pervasiveness, HR complaints, documentation
-   - For wrongful termination: stated reason for firing, PIP history, performance record, timing relative to protected activity
-   - For retaliation: what protected activity they engaged in, timing of adverse action, decision-maker identity
-   - For wage/hour: job title, whether classified as exempt, hours worked vs paid, supervisor awareness
-3. Identify any red flags that weaken the case (signed arbitration agreement, long delay, no documentation, small employer)
-4. Identify any factors that strengthen the case (comparators, documentation, pattern, high salary, long tenure, class potential)
-5. Assess urgency — are any filing deadlines approaching?
-
-CONVERSATION STYLE:
-- Warm, empathetic, non-judgmental — this person may be distressed
-- Use the person's first name naturally
-- Keep questions focused — one or two at a time, not a list
-- Do NOT use legal jargon without explaining it
-- Do NOT give legal advice or predict outcomes definitively
-- After 4–6 exchanges when you have enough information, tell the person you have enough to provide a preliminary assessment and ask if they'd like to see it
-- Your final message must end with the exact phrase: [READY_FOR_ASSESSMENT]
-
-INTERNAL TRIAGE (think but don't say):
-As you gather information, internally track:
-- Likely claim types and their strength
-- Case value indicators (salary, tenure, damages)
-- Filing deadline urgency
-- Evidence quality
-- Red flags
-
-When you produce the assessment at the end, include a hidden section formatted EXACTLY like this (it will be parsed and not shown to the user):
-===TRIAGE===
-tier: [HIGH|MEDIUM|LOW]
-priority: [P1-immediate|P2-48h|P3-nurture]
-claims: [comma-separated list]
-strength_notes: [2-3 sentences for attorney]
-deadline_urgency: [urgent|moderate|low]
-estimated_value: [high|medium|low|unknown]
-salary: [if mentioned]
-tenure: [if mentioned]
-evidence: [what they have]
-red_flags: [any]
-recommended_action: [what attorney should do]
-===END===`;
-}
-
-function buildOpeningContext() {
-  const claimStr = formData.claimTypes.length ? formData.claimTypes.join(', ') : 'not specified yet';
-  return `[INTAKE FORM CONTEXT — not shown to user]
-Name: ${formData.name} | State: ${formData.state} | Timeline: ${formData.timeline} | Employer size: ${formData.empSize} | Claim types checked: ${claimStr} | Situation: ${formData.situation}
-
-Please greet ${formData.name.split(' ')[0]} warmly and ask them to describe what happened in their own words. Keep it open-ended.`;
-}
-
-async function aiRespond(systemPrompt) {
-  chatLocked = true;
-  document.getElementById('chat-send').disabled = true;
-  document.getElementById('chat-input').disabled = true;
-
-  const typingEl = addTyping();
-
-  try {
-    const res = await fetch('/api/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messages: chatHistory, systemPrompt })
-    });
-
-    const data = await res.json();
-    const raw = data.content?.[0]?.text || '';
-
-    typingEl.remove();
-
-    // Check if triage block is present
-    const triageMatch = raw.match(/===TRIAGE===([\s\S]*?)===END===/);
-    if (triageMatch) {
-      triageData = parseTriage(triageMatch[1]);
-    }
-
-    // Check for ready signal
-    const readyForAssessment = raw.includes('[READY_FOR_ASSESSMENT]');
-
-    // Clean the message for display
-    let displayMsg = raw
-      .replace(/===TRIAGE===[\s\S]*?===END===/g, '')
-      .replace('[READY_FOR_ASSESSMENT]', '')
-      .trim();
-
-    addMsg('ai', displayMsg);
-    chatHistory.push({ role: 'assistant', content: raw });
-
-    updateProg(Math.min(0.55 + chatHistory.length * 0.04, 0.88));
-
-    if (readyForAssessment && triageData) {
-      setTimeout(() => showResults(), 1200);
-      return;
-    }
-
-  } catch(e) {
-    typingEl.remove();
-    addMsg('ai', "I'm sorry, I'm having trouble connecting right now. Please refresh and try again, or call us directly.");
-  }
-
-  chatLocked = false;
-  document.getElementById('chat-send').disabled = false;
-  document.getElementById('chat-input').disabled = false;
-  document.getElementById('chat-input').focus();
-}
-
-function parseTriage(raw) {
-  const get = (key) => {
-    const m = raw.match(new RegExp(key + ':\\s*(.+)'));
-    return m ? m[1].trim() : '';
-  };
-  return {
-    tier: get('tier').toUpperCase(),
-    priority: get('priority'),
-    claims: get('claims'),
-    strengthNotes: get('strength_notes'),
-    deadlineUrgency: get('deadline_urgency'),
-    estimatedValue: get('estimated_value'),
-    salary: get('salary'),
-    tenure: get('tenure'),
-    evidence: get('evidence'),
-    redFlags: get('red_flags'),
-    recommendedAction: get('recommended_action'),
-    name: formData.name,
-    email: formData.email,
-    phone: formData.phone,
-    state: formData.state,
-    timestamp: new Date().toISOString()
-  };
-}
-
-async function sendMsg() {
-  if (chatLocked) return;
-  const input = document.getElementById('chat-input');
-  const text = input.value.trim();
-  if (!text) return;
-
-  addMsg('user', text);
-  chatHistory.push({ role: 'user', content: text });
-  input.value = '';
-  input.style.height = 'auto';
-
-  const systemPrompt = buildSystemPrompt();
-  await aiRespond(systemPrompt);
-}
-
-function handleKey(e) {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    if (!document.getElementById('chat-send').disabled) sendMsg();
-  }
-}
-
-function autoResize(el) {
-  el.style.height = 'auto';
-  el.style.height = Math.min(el.scrollHeight, 140) + 'px';
-  document.getElementById('chat-send').disabled = !el.value.trim();
-}
-
-function addMsg(role, text) {
-  const msgs = document.getElementById('chat-msgs');
-  const div = document.createElement('div');
-  div.className = `msg ${role}`;
-
-  const avatarHTML = role === 'ai'
-    ? `<div class="msg-avatar"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg></div>`
-    : `<div class="msg-avatar user-av"><svg viewBox="0 0 24 24" fill="var(--gray-600)"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></div>`;
-
-  div.innerHTML = `${role === 'ai' ? avatarHTML : ''}<div class="msg-bubble">${text.replace(/\n/g,'<br>')}</div>${role === 'user' ? avatarHTML : ''}`;
-  msgs.appendChild(div);
-  msgs.scrollTop = msgs.scrollHeight;
-  return div;
-}
-
-function addTyping() {
-  const msgs = document.getElementById('chat-msgs');
-  const wrap = document.createElement('div');
-  wrap.className = 'msg ai';
-  wrap.innerHTML = `<div class="msg-avatar"><svg viewBox="0 0 24 24" fill="var(--gold)"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg></div><div class="typing"><span></span><span></span><span></span></div>`;
-  msgs.appendChild(wrap);
-  msgs.scrollTop = msgs.scrollHeight;
-  return wrap;
-}
-
-// ============================================================
-// RESULTS PHASE
-// ============================================================
-function showResults() {
-  updateProg(1);
-  document.getElementById('phase-chat').classList.remove('active');
-  document.getElementById('phase-results').classList.add('active');
-
-  const td = triageData || {};
-  const tier = (td.tier || 'LOW').toLowerCase();
-  const firstName = formData.name.split(' ')[0];
-
-  const headlines = {
-    high: `${firstName}, your situation shows strong indicators of a viable employment law claim.`,
-    medium: `${firstName}, your situation may support a meaningful employment law claim.`,
-    low: `${firstName}, your situation has some potential legal dimensions worth exploring further.`
-  };
-  const subs = {
-    high: `Based on our conversation, there are several factors that experienced employment attorneys look for when evaluating strong cases. You should speak with an attorney promptly — filing deadlines can be strict.`,
-    medium: `Your situation has characteristics that can support a claim, though some factors may affect its overall strength. A free consultation with an employment attorney will clarify your best path forward.`,
-    low: `The facts as described face some legal hurdles, but there may be angles not fully captured in this evaluation. Speaking with an attorney is still worthwhile — many cases that initially seem weak have aspects that aren't immediately obvious.`
-  };
-  const tierLabel = {
-    high: '✓ Strong case indicators found',
-    medium: '~ Potential claim identified',
-    low: 'Limited indicators — further review recommended'
-  };
-  const ctaText = {
-    high: 'Request a free confidential consultation →',
-    medium: 'Get a free attorney review →',
-    low: 'Speak with an attorney — free →'
-  };
-
-  const claimsHtml = td.claims ? `
-    <div class="result-factors">
-      <div class="factors-label">Potential claims identified</div>
-      ${td.claims.split(',').map(c => `<div class="factor"><span class="factor-icon" style="color:var(--green)">✓</span><div class="factor-text">${c.trim()}</div></div>`).join('')}
-    </div>` : '';
-
-  const strengthHtml = td.strengthNotes ? `
-    <div class="result-factors">
-      <div class="factors-label">Assessment summary</div>
-      <div class="factor"><span class="factor-icon">→</span><div class="factor-text">${td.strengthNotes}</div></div>
-    </div>` : '';
-
-  const urgencyColor = { urgent: 'var(--red)', moderate: 'var(--amber)', low: 'var(--green)' };
-  const urgencyHtml = td.deadlineUrgency ? `
-    <div class="result-factors">
-      <div class="factors-label">Filing deadline urgency</div>
-      <div class="factor">
-        <span class="factor-icon" style="color:${urgencyColor[td.deadlineUrgency] || 'var(--amber)'}">⏱</span>
-        <div class="factor-text" style="color:${urgencyColor[td.deadlineUrgency] || 'var(--amber)'}">
-          ${td.deadlineUrgency === 'urgent' ? 'Urgent — deadlines may be approaching soon. Contact an attorney immediately.' :
-            td.deadlineUrgency === 'moderate' ? 'Moderate — you have time, but act within the next few weeks to preserve all options.' :
-            'No immediate deadline pressure — but sooner is always better.'}
-        </div>
-      </div>
-    </div>` : '';
-
-  // Hidden triage block for operator — in production POST this to your CRM
-  const triageJson = JSON.stringify(td, null, 2);
-  const hiddenTriage = `<div id="operator-triage" data-triage='${JSON.stringify(td)}' style="display:none">${triageJson}</div>`;
-
-  document.getElementById('results-content').innerHTML = `
-    <div class="result-block ${tier}">
-      <div class="result-tier">${tierLabel[tier] || tierLabel.low}</div>
-      <div class="result-headline">${headlines[tier] || headlines.low}</div>
-      <p class="result-body">${subs[tier] || subs.low}</p>
-    </div>
-    ${claimsHtml}
-    ${strengthHtml}
-    ${urgencyHtml}
-    <div class="cta-block">
-      <div class="cta-title">Speak with an employment attorney — free</div>
-      <p class="cta-sub">No obligation. No upfront cost. Employment attorneys work on contingency — you pay nothing unless you win.</p>
-      <button class="cta-btn" onclick="handleCTA()">${ctaText[tier] || ctaText.low}</button>
-      <p class="cta-privacy">Your information is confidential and will not be sold or shared.</p>
-    </div>
-    ${hiddenTriage}
-  `;
-
-  // Log triage to console in dev — replace with CRM POST in production
-  console.log('=== OPERATOR TRIAGE REPORT ===');
-  console.log(td);
-}
-
-async function handleCTA() {
-  const btn = document.querySelector(".cta-btn");
-  btn.textContent = "Submitting...";
-  btn.disabled = true;
-  try {
-    await fetch("/api/lead", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ triage: triageData, formData })
-    });
-  } catch(e) { console.error("Lead error:", e); }
-  btn.closest(".cta-block").innerHTML = `<div style="padding:1rem 0"><div style="font-size:1.5rem;margin-bottom:0.75rem">✓</div><div style="font-family:var(--font-display);color:var(--white);font-size:1.1rem;margin-bottom:0.5rem">Request received</div><p style="color:rgba(255,255,255,0.55);font-size:0.85rem;line-height:1.6">An employment attorney will be in touch within 24 hours. If your matter is urgent, please check your email for next steps.</p></div>`;
-}
-
-// ============================================================
-// UTILITIES
-// ============================================================
-function faq(btn) {
-  btn.closest('.faq-item').classList.toggle('open');
-}
-</script>
-</body>
-</html>
+WorkerRights.ai
+		Claim types
+		How it works
+		FAQ
+		Evaluate my case →
+FREE · CONFIDENTIAL · AI-POWERED
+Do you have a strong employment law case?
+Millions of workers are owed compensation they never collect — because they don't know they have a claim. Our AI evaluator helps you find out in minutes.
+$17B
+RECOVERED ANNUALLY
+67%
+OF CLAIMS GO UNFILED
+AI
+POWERED EVALUATION
+Evaluate my case — free
+
+No login required. No attorney-client relationship is formed by using this tool.
+
+100% confidential
+
+No spam or robocalls
+
+Built by employment attorneys
+
+AI-powered case analysis
+
+All 50 states
+WHAT WE EVALUATE
+Common employment claims
+Our AI evaluator covers the most common — and most valuable — employment law claims. Click any to start your evaluation.
+⚖️
+Wrongful termination
+Fired for illegal reasons — discrimination, retaliation, whistleblowing, or in violation of your contract.
+→
+🛡️
+Discrimination
+Treated differently because of race, gender, age, disability, religion, national origin, or other protected characteristic.
+→
+🚫
+Harassment
+Sexual harassment, hostile work environment, or unwanted conduct that affected your ability to do your job.
+→
+💰
+Wage & hour theft
+Unpaid overtime, minimum wage violations, misclassification as contractor, or off-the-clock work demands.
+→
+📢
+Retaliation
+Punished for reporting misconduct, filing a complaint, taking protected leave, or exercising your legal rights.
+→
+🔍
+Not sure what I have
+Let our AI identify the strongest potential claims based on what happened to you.
+→
+CASE EVALUATOR
+Find out where you stand
+Start with a few quick questions, then our AI will have a conversation with you about what happened — and tell you honestly what it thinks.
+
+STEP 1 OF 5 — YOUR SITUATION
+What best describes your current situation?
+Select the option that most closely matches what you're experiencing.
+
+I was fired or laid off
+Including "forced to resign" or pressured to quit
+
+I'm still employed but something wrong is happening
+Discrimination, harassment, wage issues, demotion
+
+I resigned because conditions became intolerable
+May qualify as constructive dismissal
+
+This happened in the past and I'm no longer with that employer
+← Back
+Continue →
+THE PROCESS
+How it works
+Fast, private, and genuinely useful — designed by employment attorneys to surface the cases that matter.
+01
+Quick screening form
+5 questions about your situation, employer, and timeline. Takes under 2 minutes.
+02
+AI intake conversation
+Our AI speaks with you directly — asks the follow-up questions an employment attorney would ask.
+03
+Honest case assessment
+You'll get a real evaluation: what claims likely apply, how strong they are, and what deadlines you face.
+04
+Connect with an attorney
+If your case shows real potential, we'll connect you with an experienced employment attorney for a free consultation.
+QUESTIONS
+Frequently asked questions
+Does using this tool create an attorney-client relationship?
++
+How confidential is my information?
++
+How much does a consultation cost?
++
+I signed a severance agreement. Do I still have options?
++
+What if my employer made me sign an arbitration agreement?
++
+How long do I have to file a claim?
++
+WorkerRights.ai
+This website provides general legal information only and does not constitute legal advice. No attorney-client relationship is created by using this site.
+Privacy Policy  ·  Terms of Use  ·  Attorney Disclaimer
+© 2025 WorkerRights.ai · All rights reserved
