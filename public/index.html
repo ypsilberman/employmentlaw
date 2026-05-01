@@ -578,8 +578,9 @@ DELIVERING THE ASSESSMENT:
 ===TRIAGE===
 tier: [HIGH|MEDIUM|LOW]
 priority: [P1-immediate|P2-48h|P3-nurture]
-claims: [comma-separated list]
-strength_notes: [2-3 sentences for attorney]
+claims: [plain English claim names only, comma-separated — e.g. "Wrongful termination, Age discrimination". If tier is LOW and no viable claims exist, leave blank.]
+user_summary: [2–3 sentences written directly for the user in plain language. Honest, jargon-free. Explain what the situation looks like legally and what it means for them. This is shown to the user.]
+strength_notes: [2–3 sentences for the reviewing attorney only — internal, never shown to user. Clinical and specific.]
 deadline_urgency: [urgent|moderate|low]
 estimated_value: [high|medium|low|unknown]
 salary: [if mentioned]
@@ -635,7 +636,14 @@ async function aiRespond(systemPrompt) {
     updateProg(Math.min(0.55 + chatHistory.length * 0.04, 0.88));
 
     if (readyForAssessment && triageData) {
-      setTimeout(() => showTeaser(), 1200);
+      setTimeout(() => {
+        document.querySelector('.chat-input-area').innerHTML = `
+          <div style="width:100%;padding:0.75rem 1rem;text-align:center">
+            <p style="font-size:0.83rem;color:var(--gray-600);margin-bottom:0.85rem;line-height:1.55">I have enough information to give you a preliminary assessment. No personal details required to see it.</p>
+            <button onclick="showTeaser()" style="display:inline-flex;align-items:center;gap:8px;background:var(--navy);color:var(--white);border:none;padding:0.75rem 1.75rem;border-radius:var(--radius);font-size:0.88rem;font-weight:500;cursor:pointer;font-family:var(--font-body)">See my preliminary assessment →</button>
+          </div>
+        `;
+      }, 800);
       return;
     }
 
@@ -659,6 +667,7 @@ function parseTriage(raw) {
     tier: get('tier').toUpperCase(),
     priority: get('priority'),
     claims: get('claims'),
+    userSummary: get('user_summary'),
     strengthNotes: get('strength_notes'),
     deadlineUrgency: get('deadline_urgency'),
     estimatedValue: get('estimated_value'),
@@ -864,16 +873,17 @@ function showResults() {
     low: 'Limited indicators — further review recommended'
   };
 
-  const claimsHtml = td.claims ? `
+  const claimList = (td.claims || '').split(',').map(c => c.trim()).filter(c => c.length > 0);
+  const claimsHtml = claimList.length ? `
     <div class="result-factors">
       <div class="factors-label">Potential claims identified</div>
-      ${td.claims.split(',').map(c => `<div class="factor"><span class="factor-icon" style="color:var(--green)">✓</span><div class="factor-text">${c.trim()}</div></div>`).join('')}
+      ${claimList.map(c => `<div class="factor"><span class="factor-icon" style="color:var(--green)">✓</span><div class="factor-text">${c}</div></div>`).join('')}
     </div>` : '';
 
-  const strengthHtml = td.strengthNotes ? `
+  const summaryHtml = td.userSummary ? `
     <div class="result-factors">
-      <div class="factors-label">Assessment summary</div>
-      <div class="factor"><span class="factor-icon">→</span><div class="factor-text">${td.strengthNotes}</div></div>
+      <div class="factors-label">What this means for you</div>
+      <div class="factor"><span class="factor-icon">→</span><div class="factor-text">${td.userSummary}</div></div>
     </div>` : '';
 
   const urgencyColor = { urgent: 'var(--red)', moderate: 'var(--amber)', low: 'var(--green)' };
@@ -899,7 +909,7 @@ function showResults() {
       <p class="result-body">${subs[tier] || subs.low}</p>
     </div>
     ${claimsHtml}
-    ${strengthHtml}
+    ${summaryHtml}
     ${urgencyHtml}
     <div class="cta-block">
       <div style="font-size:1.5rem;margin-bottom:0.6rem">✓</div>
