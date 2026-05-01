@@ -173,8 +173,8 @@ nav{position:sticky;top:0;z-index:100;background:var(--navy);padding:0 2rem;disp
 .cta-title{font-family:var(--font-display);color:var(--white);font-size:1.15rem;margin-bottom:0.5rem}
 .cta-sub{color:rgba(255,255,255,0.5);font-size:0.82rem;margin-bottom:1.25rem;line-height:1.6}
 .cta-btn{display:inline-flex;align-items:center;gap:8px;background:var(--gold);color:var(--navy);padding:0.8rem 2rem;border-radius:var(--radius);font-weight:500;font-size:0.88rem;cursor:pointer;border:none;font-family:var(--font-body);transition:background var(--transition)}
-.cta-btn:hover{background:var(--gold-light)}
-.cta-privacy{font-size:0.7rem;color:rgba(255,255,255,0.25);margin-top:0.75rem}
+.cta-btn:hover:not(:disabled){background:var(--gold-light)}
+.cta-btn:disabled{opacity:0.5;cursor:not-allowed}
 
 /* HOW IT WORKS */
 .how-section{padding:4rem 2rem;max-width:900px;margin:0 auto}
@@ -287,7 +287,7 @@ footer a:hover{color:var(--gold)}
     <div class="eval-header">
       <p class="section-label">Case evaluator</p>
       <h2 class="section-title">Find out where you stand</h2>
-      <p class="section-sub">Start with a few quick questions, then our AI will have a conversation with you about what happened — and tell you honestly what it thinks.</p>
+      <p class="section-sub">Answer a few quick questions, then chat with our AI about what happened — no personal details required until you're ready.</p>
     </div>
 
     <div id="evaluator">
@@ -298,7 +298,7 @@ footer a:hover{color:var(--gold)}
 
         <!-- Step 1 -->
         <div class="form-step active" data-step="1">
-          <p class="step-meta">Step 1 of 5 — Your situation</p>
+          <p class="step-meta">Step 1 of 4 — Your situation</p>
           <h3 class="step-q">What best describes your current situation?</h3>
           <p class="step-hint">Select the option that most closely matches what you're experiencing.</p>
           <div class="options">
@@ -311,7 +311,7 @@ footer a:hover{color:var(--gold)}
 
         <!-- Step 2 -->
         <div class="form-step" data-step="2">
-          <p class="step-meta">Step 2 of 5 — Nature of the issue</p>
+          <p class="step-meta">Step 2 of 4 — Nature of the issue</p>
           <h3 class="step-q">What do you believe happened to you?</h3>
           <p class="step-hint">Select all that apply — multiple claim types can strengthen your case.</p>
           <div class="options">
@@ -326,21 +326,26 @@ footer a:hover{color:var(--gold)}
 
         <!-- Step 3 -->
         <div class="form-step" data-step="3">
-          <p class="step-meta">Step 3 of 5 — Your employer</p>
+          <p class="step-meta">Step 3 of 4 — Your employer</p>
           <h3 class="step-q">How large is (or was) your employer?</h3>
           <p class="step-hint">Employer size determines which federal and state protections apply to you.</p>
-          <div class="options">
+          <div class="options" style="margin-bottom:1.25rem">
             <button class="opt" onclick="pick(this,'empSize','large',4)"><div class="opt-ring"></div><div class="opt-text">500+ employees<span class="opt-sub">Maximum federal protections — Title VII cap is $300k</span></div></button>
             <button class="opt" onclick="pick(this,'empSize','mid',3)"><div class="opt-ring"></div><div class="opt-text">101–500 employees<span class="opt-sub">Title VII and ADA fully apply</span></div></button>
             <button class="opt" onclick="pick(this,'empSize','small_mid',2)"><div class="opt-ring"></div><div class="opt-text">15–100 employees<span class="opt-sub">Some federal protections; state law often stronger</span></div></button>
             <button class="opt" onclick="pick(this,'empSize','small',1)"><div class="opt-ring"></div><div class="opt-text">Fewer than 15 employees<span class="opt-sub">Limited federal coverage; state laws vary</span></div></button>
             <button class="opt" onclick="pick(this,'empSize','unknown',1)"><div class="opt-ring"></div><div class="opt-text">Not sure of the exact size</div></button>
           </div>
+          <label class="field-label">State where employment occurred *</label>
+          <select class="field" id="f-state-screen" onchange="checkStep3()" style="margin-bottom:0">
+            <option value="">Select state...</option>
+            <option>Alabama</option><option>Alaska</option><option>Arizona</option><option>Arkansas</option><option>California</option><option>Colorado</option><option>Connecticut</option><option>Delaware</option><option>Florida</option><option>Georgia</option><option>Hawaii</option><option>Idaho</option><option>Illinois</option><option>Indiana</option><option>Iowa</option><option>Kansas</option><option>Kentucky</option><option>Louisiana</option><option>Maine</option><option>Maryland</option><option>Massachusetts</option><option>Michigan</option><option>Minnesota</option><option>Mississippi</option><option>Missouri</option><option>Montana</option><option>Nebraska</option><option>Nevada</option><option>New Hampshire</option><option>New Jersey</option><option>New Mexico</option><option>New York</option><option>North Carolina</option><option>North Dakota</option><option>Ohio</option><option>Oklahoma</option><option>Oregon</option><option>Pennsylvania</option><option>Rhode Island</option><option>South Carolina</option><option>South Dakota</option><option>Tennessee</option><option>Texas</option><option>Utah</option><option>Vermont</option><option>Virginia</option><option>Washington</option><option>West Virginia</option><option>Wisconsin</option><option>Wyoming</option>
+          </select>
         </div>
 
         <!-- Step 4 -->
         <div class="form-step" data-step="4">
-          <p class="step-meta">Step 4 of 5 — Timeline</p>
+          <p class="step-meta">Step 4 of 4 — Timeline</p>
           <h3 class="step-q">When did the main incident or termination occur?</h3>
           <p class="step-hint">Employment claims have strict filing deadlines. This is one of the most important factors.</p>
           <div class="options">
@@ -350,27 +355,6 @@ footer a:hover{color:var(--gold)}
             <button class="opt" onclick="pick(this,'timeline','under2yr',2)"><div class="opt-ring"></div><div class="opt-text">1–2 years ago<span class="opt-sub">Some claims may be limited — consult an attorney soon</span></div></button>
             <button class="opt" onclick="pick(this,'timeline','over2yr',1)"><div class="opt-ring"></div><div class="opt-text">More than 2 years ago<span class="opt-sub">Many deadlines passed — wage claims may still apply</span></div></button>
           </div>
-        </div>
-
-        <!-- Step 5: Contact -->
-        <div class="form-step" data-step="5">
-          <p class="step-meta">Step 5 of 5 — Your information</p>
-          <h3 class="step-q">Almost there — let's get to know you</h3>
-          <p class="step-hint">Our AI will then speak with you directly. Your information stays strictly confidential.</p>
-          <div class="field-row">
-            <div><label class="field-label">First name *</label><input class="field" id="f-first" type="text" placeholder="Jane" oninput="checkContact()"></div>
-            <div><label class="field-label">Last name *</label><input class="field" id="f-last" type="text" placeholder="Smith" oninput="checkContact()"></div>
-          </div>
-          <label class="field-label">Email address *</label>
-          <input class="field" id="f-email" type="email" placeholder="jane@email.com" oninput="checkContact()">
-          <label class="field-label">Phone (optional)</label>
-          <input class="field" id="f-phone" type="tel" placeholder="(555) 000-0000">
-          <label class="field-label">State where employment occurred *</label>
-          <select class="field" id="f-state" onchange="checkContact()">
-            <option value="">Select state...</option>
-            <option>Alabama</option><option>Alaska</option><option>Arizona</option><option>Arkansas</option><option>California</option><option>Colorado</option><option>Connecticut</option><option>Delaware</option><option>Florida</option><option>Georgia</option><option>Hawaii</option><option>Idaho</option><option>Illinois</option><option>Indiana</option><option>Iowa</option><option>Kansas</option><option>Kentucky</option><option>Louisiana</option><option>Maine</option><option>Maryland</option><option>Massachusetts</option><option>Michigan</option><option>Minnesota</option><option>Mississippi</option><option>Missouri</option><option>Montana</option><option>Nebraska</option><option>Nevada</option><option>New Hampshire</option><option>New Jersey</option><option>New Mexico</option><option>New York</option><option>North Carolina</option><option>North Dakota</option><option>Ohio</option><option>Oklahoma</option><option>Oregon</option><option>Pennsylvania</option><option>Rhode Island</option><option>South Carolina</option><option>South Dakota</option><option>Tennessee</option><option>Texas</option><option>Utah</option><option>Vermont</option><option>Virginia</option><option>Washington</option><option>West Virginia</option><option>Wisconsin</option><option>Wyoming</option>
-          </select>
-          <p style="font-size:0.71rem;color:var(--gray-400);line-height:1.6;margin-top:0.25rem">By continuing, you agree that an employment attorney may contact you regarding your claim. No attorney-client relationship is formed until a retainer is signed.</p>
         </div>
 
         <div class="form-nav">
@@ -405,7 +389,12 @@ footer a:hover{color:var(--gold)}
         </div>
       </div><!-- /phase-chat -->
 
-      <!-- ====== PHASE 3: RESULTS ====== -->
+      <!-- ====== PHASE 3: TEASER + CONTACT GATE ====== -->
+      <div class="phase" id="phase-teaser">
+        <div class="results-phase" id="teaser-content"></div>
+      </div><!-- /phase-teaser -->
+
+      <!-- ====== PHASE 4: FULL RESULTS ====== -->
       <div class="phase" id="phase-results">
         <div class="results-phase" id="results-content"></div>
       </div>
@@ -419,10 +408,10 @@ footer a:hover{color:var(--gold)}
   <h2 class="section-title">How it works</h2>
   <p class="section-sub">Fast, private, and genuinely useful — designed by employment attorneys to surface the cases that matter.</p>
   <div class="how-steps">
-    <div><div class="how-num">01</div><div class="how-title">Quick screening form</div><div class="how-desc">5 questions about your situation, employer, and timeline. Takes under 2 minutes.</div></div>
+    <div><div class="how-num">01</div><div class="how-title">Quick screening form</div><div class="how-desc">4 questions about your situation, employer, and timeline. Takes under 2 minutes.</div></div>
     <div><div class="how-num">02</div><div class="how-title">AI intake conversation</div><div class="how-desc">Our AI speaks with you directly — asks the follow-up questions an employment attorney would ask.</div></div>
-    <div><div class="how-num">03</div><div class="how-title">Honest case assessment</div><div class="how-desc">You'll get a real evaluation: what claims likely apply, how strong they are, and what deadlines you face.</div></div>
-    <div><div class="how-num">04</div><div class="how-title">Connect with an attorney</div><div class="how-desc">If your case shows real potential, we'll connect you with an experienced employment attorney for a free consultation.</div></div>
+    <div><div class="how-num">03</div><div class="how-title">See your case snapshot</div><div class="how-desc">Get an honest read on your situation — claim types identified and overall strength — before sharing any personal details.</div></div>
+    <div><div class="how-num">04</div><div class="how-title">Connect with an attorney</div><div class="how-desc">If you want to go further, enter your details to unlock the full assessment and get a free consultation with an employment attorney.</div></div>
   </div>
 </section>
 
@@ -455,11 +444,12 @@ const formData = {
   claimTypes: [], claimTypeScore: 0,
   empSize: null, empSizeScore: 0,
   timeline: null, timelineScore: 0,
-  name: '', email: '', phone: '', state: ''
+  state: '',
+  name: '', email: '', phone: ''
 };
 
 let formStep = 1;
-const FORM_STEPS = 5;
+const FORM_STEPS = 4;
 const multiState = {};
 
 // ============================================================
@@ -470,7 +460,17 @@ function pick(el, key, val, score) {
   el.classList.add('sel');
   formData[key] = val;
   formData[key + 'Score'] = score;
-  document.getElementById('form-next').disabled = false;
+  if (formStep === 3) {
+    checkStep3();
+  } else {
+    document.getElementById('form-next').disabled = false;
+  }
+}
+
+function checkStep3() {
+  const hasSize = formData.empSize !== null;
+  const hasState = document.getElementById('f-state-screen').value !== '';
+  document.getElementById('form-next').disabled = !(hasSize && hasState);
 }
 
 function tog(el, key, score) {
@@ -480,26 +480,14 @@ function tog(el, key, score) {
   document.getElementById('form-next').disabled = !anySelected;
 }
 
-function checkContact() {
-  const ok = document.getElementById('f-first').value.trim() &&
-             document.getElementById('f-last').value.trim() &&
-             document.getElementById('f-email').value.includes('@') &&
-             document.getElementById('f-state').value;
-  document.getElementById('form-next').disabled = !ok;
-}
-
 function formNext() {
   if (formStep === 2) {
     formData.claimTypes = Object.entries(multiState).filter(([,v])=>v.sel).map(([k])=>k);
     formData.claimTypeScore = Math.min(formData.claimTypes.reduce((s,[k])=>s+(multiState[k]?.score||0),0), 8);
-    // reset for next multi step
     Object.keys(multiState).forEach(k => delete multiState[k]);
   }
-  if (formStep === 5) {
-    formData.name = document.getElementById('f-first').value.trim() + ' ' + document.getElementById('f-last').value.trim();
-    formData.email = document.getElementById('f-email').value.trim();
-    formData.phone = document.getElementById('f-phone').value.trim();
-    formData.state = document.getElementById('f-state').value;
+  if (formStep === 4) {
+    formData.state = document.getElementById('f-state-screen').value;
     startChat();
     return;
   }
@@ -507,8 +495,12 @@ function formNext() {
   formStep++;
   document.querySelector(`.form-step[data-step="${formStep}"]`).classList.add('active');
   document.getElementById('form-back').style.visibility = 'visible';
-  const isMulti = [2].includes(formStep);
-  document.getElementById('form-next').disabled = !isMulti;
+  // Step 2 (multi-select) starts enabled; step 3 starts disabled until both size+state filled
+  if (formStep === 2) {
+    document.getElementById('form-next').disabled = false;
+  } else {
+    document.getElementById('form-next').disabled = true;
+  }
   updateProg(formStep / (FORM_STEPS * 2));
 }
 
@@ -553,7 +545,6 @@ SCREENING FORM DATA ALREADY COLLECTED:
 - Claim types indicated: ${formData.claimTypes.join(', ') || 'unsure'}
 - Employer size: ${formData.empSize}
 - Timeline: ${formData.timeline}
-- Name: ${formData.name}
 - State: ${formData.state}
 
 YOUR GOALS IN THIS CONVERSATION:
@@ -569,7 +560,6 @@ YOUR GOALS IN THIS CONVERSATION:
 
 CONVERSATION STYLE:
 - Warm, empathetic, non-judgmental — this person may be distressed
-- Use the person's first name naturally
 - Keep questions focused — one or two at a time, not a list
 - Do NOT use legal jargon without explaining it
 - Do NOT give legal advice or predict outcomes definitively
@@ -603,9 +593,9 @@ recommended_action: [what attorney should do]
 function buildOpeningContext() {
   const claimStr = formData.claimTypes.length ? formData.claimTypes.join(', ') : 'not specified yet';
   return `[INTAKE FORM CONTEXT — not shown to user]
-Name: ${formData.name} | State: ${formData.state} | Timeline: ${formData.timeline} | Employer size: ${formData.empSize} | Claim types checked: ${claimStr} | Situation: ${formData.situation}
+State: ${formData.state} | Timeline: ${formData.timeline} | Employer size: ${formData.empSize} | Claim types checked: ${claimStr} | Situation: ${formData.situation}
 
-Please greet ${formData.name.split(' ')[0]} warmly and ask them to describe what happened in their own words. Keep it open-ended.`;
+Please greet the user warmly and ask them to describe what happened in their own words. Keep it open-ended. Do not ask for their name — we will collect contact details separately.`;
 }
 
 async function aiRespond(systemPrompt) {
@@ -627,16 +617,13 @@ async function aiRespond(systemPrompt) {
 
     typingEl.remove();
 
-    // Check if triage block is present
     const triageMatch = raw.match(/===TRIAGE===([\s\S]*?)===END===/);
     if (triageMatch) {
       triageData = parseTriage(triageMatch[1]);
     }
 
-    // Check for ready signal
     const readyForAssessment = raw.includes('[READY_FOR_ASSESSMENT]');
 
-    // Clean the message for display
     let displayMsg = raw
       .replace(/===TRIAGE===[\s\S]*?===END===/g, '')
       .replace('[READY_FOR_ASSESSMENT]', '')
@@ -648,7 +635,7 @@ async function aiRespond(systemPrompt) {
     updateProg(Math.min(0.55 + chatHistory.length * 0.04, 0.88));
 
     if (readyForAssessment && triageData) {
-      setTimeout(() => showResults(), 1200);
+      setTimeout(() => showTeaser(), 1200);
       return;
     }
 
@@ -680,9 +667,6 @@ function parseTriage(raw) {
     evidence: get('evidence'),
     redFlags: get('red_flags'),
     recommendedAction: get('recommended_action'),
-    name: formData.name,
-    email: formData.email,
-    phone: formData.phone,
     state: formData.state,
     timestamp: new Date().toISOString()
   };
@@ -742,12 +726,123 @@ function addTyping() {
 }
 
 // ============================================================
+// TEASER PHASE
+// ============================================================
+function showTeaser() {
+  updateProg(0.92);
+  document.getElementById('phase-chat').classList.remove('active');
+  document.getElementById('phase-teaser').classList.add('active');
+
+  const td = triageData || {};
+  const tier = (td.tier || 'LOW').toLowerCase();
+
+  const teaserHeadlines = {
+    high: 'Your situation shows strong indicators of a viable employment law claim.',
+    medium: 'Your situation may support a meaningful employment law claim.',
+    low: 'Your situation has some potential legal dimensions worth exploring further.'
+  };
+  const tierLabel = {
+    high: '✓ Strong case indicators found',
+    medium: '~ Potential claim identified',
+    low: 'Further review recommended'
+  };
+  const urgencyText = {
+    urgent: '⏱ Urgent — filing deadlines may be approaching soon',
+    moderate: '⏱ Moderate deadline urgency — act within the next few weeks',
+    low: 'No immediate deadline pressure'
+  };
+
+  const claimCount = td.claims ? td.claims.split(',').filter(c => c.trim()).length : 0;
+
+  document.getElementById('teaser-content').innerHTML = `
+    <div class="result-block ${tier}">
+      <div class="result-tier">${tierLabel[tier] || tierLabel.low}</div>
+      <div class="result-headline">${teaserHeadlines[tier] || teaserHeadlines.low}</div>
+    </div>
+
+    <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1.75rem">
+      ${claimCount > 0 ? `
+      <div style="flex:1;min-width:130px;background:var(--gray-100);border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:1rem 1.25rem;text-align:center">
+        <div style="font-family:var(--font-display);font-size:2rem;color:var(--navy);line-height:1">${claimCount}</div>
+        <div style="font-size:0.72rem;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.05em;margin-top:4px">Potential claim${claimCount !== 1 ? 's' : ''} identified</div>
+      </div>` : ''}
+      ${td.deadlineUrgency ? `
+      <div style="flex:2;min-width:180px;background:var(--gray-100);border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:1rem 1.25rem;display:flex;align-items:center">
+        <div style="font-size:0.86rem;color:var(--navy);line-height:1.4">${urgencyText[td.deadlineUrgency] || ''}</div>
+      </div>` : ''}
+    </div>
+
+    <div style="background:var(--navy);border-radius:var(--radius-lg);padding:1.75rem">
+      <div style="font-family:var(--font-display);color:var(--white);font-size:1.1rem;margin-bottom:0.4rem">Get your full case assessment — free</div>
+      <p style="color:rgba(255,255,255,0.5);font-size:0.83rem;margin-bottom:1.4rem;line-height:1.65">Enter your details to unlock the full breakdown: identified claims, case strength analysis, filing deadlines, and a connection to a qualified employment attorney at no cost.</p>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:0.75rem">
+        <div>
+          <label style="font-size:0.75rem;color:rgba(255,255,255,0.45);margin-bottom:0.3rem;display:block;font-weight:500">First name *</label>
+          <input class="field" id="t-first" type="text" placeholder="Jane" oninput="checkTeaser()" style="margin-bottom:0;background:rgba(255,255,255,0.07);border-color:rgba(255,255,255,0.15);color:white">
+        </div>
+        <div>
+          <label style="font-size:0.75rem;color:rgba(255,255,255,0.45);margin-bottom:0.3rem;display:block;font-weight:500">Last name *</label>
+          <input class="field" id="t-last" type="text" placeholder="Smith" oninput="checkTeaser()" style="margin-bottom:0;background:rgba(255,255,255,0.07);border-color:rgba(255,255,255,0.15);color:white">
+        </div>
+      </div>
+      <label style="font-size:0.75rem;color:rgba(255,255,255,0.45);margin-bottom:0.3rem;display:block;font-weight:500">Email address *</label>
+      <input class="field" id="t-email" type="email" placeholder="jane@email.com" oninput="checkTeaser()" style="background:rgba(255,255,255,0.07);border-color:rgba(255,255,255,0.15);color:white">
+      <label style="font-size:0.75rem;color:rgba(255,255,255,0.45);margin-bottom:0.3rem;display:block;font-weight:500">Phone (optional)</label>
+      <input class="field" id="t-phone" type="tel" placeholder="(555) 000-0000" style="margin-bottom:1.25rem;background:rgba(255,255,255,0.07);border-color:rgba(255,255,255,0.15);color:white">
+
+      <button class="cta-btn" id="teaser-submit" onclick="handleContactSubmit()" disabled style="width:100%;justify-content:center;font-size:0.92rem;padding:0.9rem 2rem">
+        See my full assessment →
+      </button>
+      <p style="font-size:0.7rem;color:rgba(255,255,255,0.25);margin-top:0.85rem;text-align:center;line-height:1.6">
+        🔒 Confidential &nbsp;·&nbsp; No spam or robocalls &nbsp;·&nbsp; No obligation &nbsp;·&nbsp; <a href="terms-of-use.html" style="color:rgba(255,255,255,0.35);text-decoration:underline">Terms of use</a>
+      </p>
+    </div>
+  `;
+}
+
+function checkTeaser() {
+  const ok = document.getElementById('t-first').value.trim() &&
+             document.getElementById('t-last').value.trim() &&
+             document.getElementById('t-email').value.includes('@');
+  document.getElementById('teaser-submit').disabled = !ok;
+}
+
+async function handleContactSubmit() {
+  const btn = document.getElementById('teaser-submit');
+  btn.textContent = 'Submitting...';
+  btn.disabled = true;
+
+  formData.name = document.getElementById('t-first').value.trim() + ' ' + document.getElementById('t-last').value.trim();
+  formData.email = document.getElementById('t-email').value.trim();
+  formData.phone = document.getElementById('t-phone').value.trim();
+
+  if (triageData) {
+    triageData.name = formData.name;
+    triageData.email = formData.email;
+    triageData.phone = formData.phone;
+  }
+
+  try {
+    await fetch('/api/lead', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ triage: triageData, formData })
+    });
+  } catch(e) {
+    console.error('Lead error:', e);
+  }
+
+  document.getElementById('phase-teaser').classList.remove('active');
+  document.getElementById('phase-results').classList.add('active');
+  showResults();
+}
+
+// ============================================================
 // RESULTS PHASE
 // ============================================================
 function showResults() {
   updateProg(1);
-  document.getElementById('phase-chat').classList.remove('active');
-  document.getElementById('phase-results').classList.add('active');
 
   const td = triageData || {};
   const tier = (td.tier || 'LOW').toLowerCase();
@@ -767,11 +862,6 @@ function showResults() {
     high: '✓ Strong case indicators found',
     medium: '~ Potential claim identified',
     low: 'Limited indicators — further review recommended'
-  };
-  const ctaText = {
-    high: 'Request a free confidential consultation →',
-    medium: 'Get a free attorney review →',
-    low: 'Speak with an attorney — free →'
   };
 
   const claimsHtml = td.claims ? `
@@ -800,9 +890,7 @@ function showResults() {
       </div>
     </div>` : '';
 
-  // Hidden triage block for operator — in production POST this to your CRM
-  const triageJson = JSON.stringify(td, null, 2);
-  const hiddenTriage = `<div id="operator-triage" data-triage='${JSON.stringify(td)}' style="display:none">${triageJson}</div>`;
+  const hiddenTriage = `<div id="operator-triage" data-triage='${JSON.stringify(td)}' style="display:none"></div>`;
 
   document.getElementById('results-content').innerHTML = `
     <div class="result-block ${tier}">
@@ -814,31 +902,19 @@ function showResults() {
     ${strengthHtml}
     ${urgencyHtml}
     <div class="cta-block">
-      <div class="cta-title">Speak with an employment attorney — free</div>
-      <p class="cta-sub">No obligation. No upfront cost. Employment attorneys work on contingency — you pay nothing unless you win.</p>
-      <button class="cta-btn" onclick="handleCTA()">${ctaText[tier] || ctaText.low}</button>
-      <p class="cta-privacy">Your information is confidential and will not be sold or shared.</p>
+      <div style="font-size:1.5rem;margin-bottom:0.6rem">✓</div>
+      <div class="cta-title">Your request is confirmed</div>
+      <p class="cta-sub">An employment attorney will review your case and be in touch within 24 hours. Check your email for next steps.</p>
     </div>
+    <p style="font-size:0.75rem;color:var(--gray-400);line-height:1.7;margin-top:1.5rem;text-align:center">
+      This assessment is generated by AI and is for informational purposes only. It does not constitute legal advice and no attorney-client relationship is formed by using this tool.
+      &nbsp;<a href="terms-of-use.html" style="color:var(--gray-400);text-decoration:underline">Terms of use</a> &nbsp;·&nbsp; <a href="attorney-disclaimer.html" style="color:var(--gray-400);text-decoration:underline">Attorney disclaimer</a>
+    </p>
     ${hiddenTriage}
   `;
 
-  // Log triage to console in dev — replace with CRM POST in production
   console.log('=== OPERATOR TRIAGE REPORT ===');
   console.log(td);
-}
-
-async function handleCTA() {
-  const btn = document.querySelector(".cta-btn");
-  btn.textContent = "Submitting...";
-  btn.disabled = true;
-  try {
-    await fetch("/api/lead", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ triage: triageData, formData })
-    });
-  } catch(e) { console.error("Lead error:", e); }
-  btn.closest(".cta-block").innerHTML = `<div style="padding:1rem 0"><div style="font-size:1.5rem;margin-bottom:0.75rem">✓</div><div style="font-family:var(--font-display);color:var(--white);font-size:1.1rem;margin-bottom:0.5rem">Request received</div><p style="color:rgba(255,255,255,0.55);font-size:0.85rem;line-height:1.6">An employment attorney will be in touch within 24 hours. If your matter is urgent, please check your email for next steps.</p></div>`;
 }
 
 // ============================================================
