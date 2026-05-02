@@ -864,12 +864,16 @@ function showResults() {
   const headlines = {
     high: `${firstName}, your situation shows strong indicators of a viable employment law claim.`,
     medium: `${firstName}, your situation may support a meaningful employment law claim.`,
-    low: `${firstName}, your situation has some potential legal dimensions worth exploring further.`
+    low: claimList.length === 0
+      ? `${firstName}, your situation as described is unlikely to support a viable employment law claim.`
+      : `${firstName}, your situation has some potential legal dimensions worth exploring further.`
   };
   const subs = {
     high: `Based on our conversation, there are several factors that experienced employment attorneys look for when evaluating strong cases. You should speak with an attorney promptly — filing deadlines can be strict.`,
-    medium: `Your situation has characteristics that can support a claim, though some factors may affect its overall strength. A free consultation with an employment attorney will clarify your best path forward.`,
-    low: `The facts as described face some legal hurdles, but there may be angles not fully captured in this evaluation. Speaking with an attorney is still worthwhile — many cases that initially seem weak have aspects that aren't immediately obvious.`
+    medium: `Your situation has characteristics that can support a claim, though some factors may affect its overall strength. A free consultation with an attorney will clarify your best path forward.`,
+    low: claimList.length === 0
+      ? `Employment law can be nuanced, and there may be context or details that weren't fully captured in this conversation. A free consultation with an attorney can confirm whether any angles are worth pursuing.`
+      : `The facts as described face some legal hurdles, but there may be angles not fully captured in this evaluation. Speaking with an attorney is still worthwhile — many cases that initially seem weak have aspects that aren't immediately obvious.`
   };
   const tierLabel = {
     high: '✓ Strong case indicators found',
