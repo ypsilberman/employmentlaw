@@ -638,8 +638,8 @@ async function aiRespond(systemPrompt) {
       setTimeout(() => {
         document.querySelector('.chat-input-area').innerHTML = `
           <div style="width:100%;padding:0.75rem 1rem;text-align:center">
-            <p style="font-size:0.83rem;color:var(--gray-600);margin-bottom:0.85rem;line-height:1.55">Your assessment is ready. No personal details required to see it.</p>
-            <button onclick="showTeaser()" style="display:inline-flex;align-items:center;gap:8px;background:var(--navy);color:var(--white);border:none;padding:0.75rem 1.75rem;border-radius:var(--radius);font-size:0.88rem;font-weight:500;cursor:pointer;font-family:var(--font-body)">See my assessment →</button>
+            <p style="font-size:0.83rem;color:var(--gray-600);margin-bottom:0.85rem;line-height:1.55">Your free preliminary assessment is ready. No personal details required to see it.</p>
+            <button onclick="showTeaser()" style="display:inline-flex;align-items:center;gap:8px;background:var(--navy);color:var(--white);border:none;padding:0.75rem 1.75rem;border-radius:var(--radius);font-size:0.88rem;font-weight:500;cursor:pointer;font-family:var(--font-body)">See my free preliminary assessment →</button>
           </div>
         `;
       }, 800);
@@ -740,6 +740,7 @@ function showTeaser() {
   updateProg(0.92);
   document.getElementById('phase-chat').classList.remove('active');
   document.getElementById('phase-teaser').classList.add('active');
+  document.querySelector('.eval-header').style.display = 'none';
 
   const td = triageData || {};
   const tier = (td.tier || 'LOW').toLowerCase();
@@ -747,12 +748,17 @@ function showTeaser() {
   const teaserHeadlines = {
     high: 'Your situation shows strong indicators of a viable employment law claim.',
     medium: 'Your situation may support a meaningful employment law claim.',
-    low: 'Your situation has some potential legal dimensions worth exploring further.'
+    low: 'Based on what you shared, your situation as described may be difficult to pursue as a legal claim.'
+  };
+  const teaserSubs = {
+    high: 'Several factors that attorneys look for in strong cases appear to be present here.',
+    medium: 'Your situation has characteristics that can support a claim. A free consultation will clarify your options.',
+    low: 'Employment law can be nuanced, and there may be context or details that weren\'t captured in this conversation. A free attorney consultation can confirm whether any angles are worth pursuing — at no cost to you.'
   };
   const tierLabel = {
     high: '✓ Strong case indicators found',
     medium: '~ Potential claim identified',
-    low: 'Further review recommended'
+    low: 'Limited indicators found'
   };
   const urgencyText = {
     urgent: '⏱ Urgent — filing deadlines may be approaching soon',
@@ -766,14 +772,14 @@ function showTeaser() {
     <div class="result-block ${tier}">
       <div class="result-tier">${tierLabel[tier] || tierLabel.low}</div>
       <div class="result-headline">${teaserHeadlines[tier] || teaserHeadlines.low}</div>
+      <p class="result-body">${teaserSubs[tier] || teaserSubs.low}</p>
     </div>
 
     <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1.75rem">
-      ${claimCount > 0 ? `
       <div style="flex:1;min-width:130px;background:var(--gray-100);border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:1rem 1.25rem;text-align:center">
         <div style="font-family:var(--font-display);font-size:2rem;color:var(--navy);line-height:1">${claimCount}</div>
         <div style="font-size:0.72rem;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.05em;margin-top:4px">Potential claim${claimCount !== 1 ? 's' : ''} identified</div>
-      </div>` : ''}
+      </div>
       ${td.deadlineUrgency ? `
       <div style="flex:2;min-width:180px;background:var(--gray-100);border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:1rem 1.25rem;display:flex;align-items:center">
         <div style="font-size:0.86rem;color:var(--navy);line-height:1.4">${urgencyText[td.deadlineUrgency] || ''}</div>
