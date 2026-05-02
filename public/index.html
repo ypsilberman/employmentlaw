@@ -463,7 +463,7 @@ function pick(el, key, val, score) {
   if (formStep === 3) {
     checkStep3();
   } else {
-    document.getElementById('form-next').disabled = false;
+    setTimeout(() => formNext(), 180);
   }
 }
 
