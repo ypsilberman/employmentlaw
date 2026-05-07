@@ -13,7 +13,7 @@ export default async function handler(req, res) {
 
   const RESEND_API_KEY = process.env.RESEND_API_KEY;
   const TO_EMAIL = 'ypsilberman@gmail.com';
-  const FROM_EMAIL = 'onboarding@resend.dev'; // update to 'leads@workerrights.ai' once you have a domain verified in Resend
+  const FROM_EMAIL = 'leads@workerrights.ai';
 
   const tierColors = { HIGH: '#2E6B4F', MEDIUM: '#B07010', LOW: '#5C5A55' };
   const priorityLabels = {
