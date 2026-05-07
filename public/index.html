@@ -840,7 +840,7 @@ async function handleContactSubmit() {
     await fetch('/api/lead', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ triage: triageData, formData })
+      body: JSON.stringify({ triage: triageData, formData, transcript: chatHistory.slice(1) })
     });
   } catch(e) {
     console.error('Lead error:', e);

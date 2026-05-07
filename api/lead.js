@@ -5,7 +5,7 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { triage, formData } = req.body;
+  const { triage, formData, transcript } = req.body;
 
   if (!triage || !formData) {
     return res.status(400).json({ error: 'Missing triage or formData' });
@@ -96,6 +96,17 @@ export default async function handler(req, res) {
 
     </div>
 
+    <!-- Transcript -->
+    ${transcript && transcript.length ? `
+    <div style="padding:1.75rem 2rem;border-top:1px solid #E0DDD5">
+      <div style="font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:#9C9890;font-weight:600;margin-bottom:1rem">AI Conversation Transcript</div>
+      ${transcript.map(m => `
+        <div style="margin-bottom:0.85rem">
+          <div style="font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:${m.role === 'assistant' ? '#C9A84C' : '#5C5A55'};margin-bottom:0.2rem">${m.role === 'assistant' ? 'Advisor' : 'User'}</div>
+          <div style="font-size:0.87rem;color:#1A1816;line-height:1.6;white-space:pre-wrap">${m.content.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
+        </div>`).join('')}
+    </div>` : ''}
+
     <!-- Footer -->
     <div style="background:#F2F0EB;padding:1rem 2rem;border-top:1px solid #E0DDD5;font-size:0.72rem;color:#9C9890">
       WorkerRights.ai · Automated lead notification · ${timestamp}
@@ -132,6 +143,10 @@ Red flags: ${triage.redFlags || 'None'}
 
 RECOMMENDED ACTION
 ${triage.recommendedAction}
+
+${transcript && transcript.length ? `CONVERSATION TRANSCRIPT
+${'─'.repeat(40)}
+${transcript.map(m => `${m.role === 'assistant' ? 'Advisor' : 'User'}: ${m.content}`).join('\n\n')}` : ''}
 `.trim();
 
   try {
