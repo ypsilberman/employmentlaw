@@ -772,7 +772,8 @@ function showTeaser() {
     low: 'No immediate deadline pressure'
   };
 
-  const claimCount = td.claims ? td.claims.split(',').map(c => c.trim()).filter(c => c.length > 0 && c.toLowerCase() !== 'none').length : 0;
+  const splitClaims = s => s.split(/,(?![^(]*\))/).map(c => c.trim()).filter(c => c.length > 0 && c.toLowerCase() !== 'none');
+  const claimCount = td.claims ? splitClaims(td.claims).length : 0;
 
   document.getElementById('teaser-content').innerHTML = `
     <div class="result-block ${tier}">
@@ -866,7 +867,7 @@ function showResults() {
   const td = triageData || {};
   const tier = (td.tier || 'LOW').toLowerCase();
   const firstName = formData.name.split(' ')[0];
-  const claimList = (td.claims || '').split(',').map(c => c.trim()).filter(c => c.length > 0 && c.toLowerCase() !== 'none');
+  const claimList = splitClaims(td.claims || '');
 
   const headlines = {
     high: `${firstName}, your situation shows strong indicators of a viable employment law claim.`,
