@@ -439,6 +439,8 @@ footer a:hover{color:var(--gold)}
 // ============================================================
 // STATE
 // ============================================================
+const splitClaims = s => s.split(/,(?![^(]*\))/).map(c => c.trim()).filter(c => c.length > 0 && c.toLowerCase() !== 'none');
+
 const formData = {
   situation: null, situationScore: 0,
   claimTypes: [], claimTypeScore: 0,
@@ -772,7 +774,6 @@ function showTeaser() {
     low: 'No immediate deadline pressure'
   };
 
-  const splitClaims = s => s.split(/,(?![^(]*\))/).map(c => c.trim()).filter(c => c.length > 0 && c.toLowerCase() !== 'none');
   const claimCount = td.claims ? splitClaims(td.claims).length : 0;
 
   document.getElementById('teaser-content').innerHTML = `
