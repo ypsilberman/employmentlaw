@@ -862,6 +862,12 @@ async function handleContactSubmit() {
     console.error('Lead error:', e);
   }
 
+  gtag('event', 'conversion', {
+    'send_to': 'AW-1055426195/TgFdCNzXp6kcEJONovcD',
+    'value': 1.0,
+    'currency': 'USD'
+  });
+
   document.getElementById('phase-teaser').classList.remove('active');
   document.getElementById('phase-results').classList.add('active');
   showResults();
