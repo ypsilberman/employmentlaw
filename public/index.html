@@ -860,6 +860,7 @@ function showResults() {
   const td = triageData || {};
   const tier = (td.tier || 'LOW').toLowerCase();
   const firstName = formData.name.split(' ')[0];
+  const claimList = (td.claims || '').split(',').map(c => c.trim()).filter(c => c.length > 0 && c.toLowerCase() !== 'none');
 
   const headlines = {
     high: `${firstName}, your situation shows strong indicators of a viable employment law claim.`,
@@ -881,7 +882,6 @@ function showResults() {
     low: 'Limited indicators — further review recommended'
   };
 
-  const claimList = (td.claims || '').split(',').map(c => c.trim()).filter(c => c.length > 0 && c.toLowerCase() !== 'none');
   const claimsHtml = claimList.length ? `
     <div class="result-factors">
       <div class="factors-label">Potential claims identified</div>
