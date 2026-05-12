@@ -541,7 +541,7 @@ function startChat() {
   document.getElementById('phase-form').classList.remove('active');
   document.getElementById('phase-chat').classList.add('active');
   updateProg(0.55);
-  document.getElementById('evaluator').scrollIntoView({behavior:'smooth'});
+  document.getElementById('evaluator-anchor').scrollIntoView({behavior:'smooth'});
 
   const systemPrompt = buildSystemPrompt();
   const openingContext = buildOpeningContext();
