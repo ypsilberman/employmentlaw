@@ -505,7 +505,7 @@ function formNext() {
   document.querySelector(`.form-step[data-step="${formStep}"]`).classList.remove('active');
   formStep++;
   document.querySelector(`.form-step[data-step="${formStep}"]`).classList.add('active');
-  document.getElementById('evaluator').scrollIntoView({behavior:'smooth'});
+  document.getElementById('evaluator-anchor').scrollIntoView({behavior:'smooth'});
   document.getElementById('form-back').style.visibility = 'visible';
   // Step 2 (multi-select) starts enabled; step 3 starts disabled until both size+state filled
   if (formStep === 2) {
@@ -541,7 +541,7 @@ function startChat() {
   document.getElementById('phase-form').classList.remove('active');
   document.getElementById('phase-chat').classList.add('active');
   updateProg(0.55);
-  document.getElementById('evaluator-anchor').scrollIntoView({behavior:'smooth'});
+  document.getElementById('evaluator').scrollIntoView({behavior:'smooth'});
 
   const systemPrompt = buildSystemPrompt();
   const openingContext = buildOpeningContext();
