@@ -84,7 +84,7 @@ nav{position:sticky;top:0;z-index:100;background:var(--navy);padding:0 2rem;disp
 .eval-header .section-sub{color:rgba(255,255,255,0.5);margin:0 auto}
 
 /* EVALUATOR CARD */
-#evaluator{background:var(--white);border-radius:var(--radius-lg);overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,0.35)}
+#evaluator{background:var(--white);border-radius:var(--radius-lg);overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,0.35);scroll-margin-top:70px}
 .eval-progress{height:3px;background:var(--gray-200)}
 .eval-progress-fill{height:100%;background:var(--gold);transition:width 0.4s ease}
 
@@ -505,7 +505,7 @@ function formNext() {
   document.querySelector(`.form-step[data-step="${formStep}"]`).classList.remove('active');
   formStep++;
   document.querySelector(`.form-step[data-step="${formStep}"]`).classList.add('active');
-  document.getElementById('evaluator-anchor').scrollIntoView({behavior:'smooth'});
+  document.getElementById('evaluator').scrollIntoView({behavior:'smooth'});
   document.getElementById('form-back').style.visibility = 'visible';
   // Step 2 (multi-select) starts enabled; step 3 starts disabled until both size+state filled
   if (formStep === 2) {
