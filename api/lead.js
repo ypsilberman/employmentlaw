@@ -91,7 +91,8 @@ export default async function handler(req, res) {
       <!-- Action Buttons -->
       <div style="display:flex;gap:0.75rem;flex-wrap:wrap">
         ${formData.email ? `<a href="mailto:${formData.email}?subject=Your Employment Law Case Evaluation — WorkerRights.ai&body=Dear ${(formData.name||'').split(' ')[0]}," style="display:inline-block;background:#0D1B2A;color:white;padding:0.65rem 1.25rem;border-radius:4px;text-decoration:none;font-size:0.85rem;font-weight:500">Email ${(formData.name||'').split(' ')[0]} →</a>` : ''}
-        ${formData.phone ? `<a href="tel:${formData.phone.replace(/[^\d+]/g, '')}" style="display:inline-block;background:#C9A84C;color:#0D1B2A;padding:0.65rem 1.25rem;border-radius:4px;text-decoration:none;font-size:0.85rem;font-weight:500">Call ${formData.phone} →</a>` : ''}
+        ${formData.phone ? `<a href="https://voice.google.com/calls?a=nc&num=+1${formData.phone.replace(/[^\d]/g, '')}" style="display:inline-block;background:#C9A84C;color:#0D1B2A;padding:0.65rem 1.25rem;border-radius:4px;text-decoration:none;font-size:0.85rem;font-weight:500">Call via Google Voice →</a>` : ''}
+        ${formData.phone ? `<a href="tel:${formData.phone.replace(/[^\d+]/g, '')}" style="display:inline-block;background:#2E6B4F;color:white;padding:0.65rem 1.25rem;border-radius:4px;text-decoration:none;font-size:0.85rem;font-weight:500">Call ${formData.phone} →</a>` : ''}
       </div>
 
     </div>
