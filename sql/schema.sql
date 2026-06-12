@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS firms (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   name TEXT NOT NULL,
   state TEXT NOT NULL,
+  states TEXT[],
   contact_name TEXT,
   contact_email TEXT NOT NULL,
   contact_phone TEXT,
@@ -37,6 +38,7 @@ CREATE TABLE IF NOT EXISTS leads (
   evidence TEXT,
   red_flags TEXT,
   recommended_action TEXT,
+  user_summary TEXT,
   status TEXT DEFAULT 'new',
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -72,3 +74,7 @@ ALTER TABLE firms DISABLE ROW LEVEL SECURITY;
 ALTER TABLE leads DISABLE ROW LEVEL SECURITY;
 ALTER TABLE cases DISABLE ROW LEVEL SECURITY;
 ALTER TABLE status_updates DISABLE ROW LEVEL SECURITY;
+
+-- Migrations (safe to run on existing databases — adds columns if missing)
+ALTER TABLE firms ADD COLUMN IF NOT EXISTS states TEXT[];
+ALTER TABLE leads ADD COLUMN IF NOT EXISTS user_summary TEXT;

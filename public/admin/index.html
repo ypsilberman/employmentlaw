@@ -486,8 +486,13 @@ async function loadLeads(filter = 'all') {
     url += `&${k}=${v}`;
   }
   try {
-    const leads = await api(url);
+    // Always fetch leads; fetch cases in parallel only if not already loaded
+    const [leads, cases] = await Promise.all([
+      api(url),
+      allCases.length ? Promise.resolve(allCases) : api('/api/admin/data?resource=cases'),
+    ]);
     allLeads = filter === 'all' ? leads : allLeads;
+    if (!allCases.length) allCases = cases;
     renderLeads(leads);
   } catch(e) {
     document.getElementById('leads-content').innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-text">${e.message}</div></div>`;
@@ -545,6 +550,21 @@ async function markLeadStatus(id, status) {
 function showLeadDetail(id) {
   const lead = allLeads.find(l => l.id === id);
   if (!lead) return;
+  const relatedCase = allCases.find(c => c.lead_id === id);
+  const fmt = d => d ? new Date(d).toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}) : '—';
+  const referralHtml = relatedCase ? `
+    <div class="detail-section">
+      <div class="detail-label">Referral</div>
+      <div class="detail-grid">
+        <div class="detail-key">Firm</div><div class="detail-val" style="font-weight:500">${relatedCase.firms?.name || '—'}</div>
+        <div class="detail-key">Referred</div><div class="detail-val">${fmt(relatedCase.referred_at)}</div>
+        <div class="detail-key">Case status</div><div class="detail-val"><span class="badge badge-${relatedCase.status}">${relatedCase.status}</span></div>
+        ${relatedCase.accepted_at ? `<div class="detail-key">Accepted</div><div class="detail-val">${fmt(relatedCase.accepted_at)}</div>` : ''}
+        ${relatedCase.settled_at ? `<div class="detail-key">Settled</div><div class="detail-val">${fmt(relatedCase.settled_at)}</div>` : ''}
+        ${relatedCase.settlement_amount ? `<div class="detail-key">Settlement</div><div class="detail-val">$${parseFloat(relatedCase.settlement_amount).toLocaleString()}</div>` : ''}
+        ${relatedCase.expected_fee ? `<div class="detail-key">Exp. fee</div><div class="detail-val">$${parseFloat(relatedCase.expected_fee).toLocaleString()}</div>` : ''}
+      </div>
+    </div>` : '';
   openModal(`Lead: ${lead.name || 'Unknown'}`, `
     <div class="detail-section">
       <div class="detail-label">Contact</div>
@@ -553,8 +573,10 @@ function showLeadDetail(id) {
         <div class="detail-key">Email</div><div class="detail-val"><a href="mailto:${lead.email}" style="color:var(--navy)">${lead.email || '—'}</a></div>
         <div class="detail-key">Phone</div><div class="detail-val">${lead.phone || 'Not provided'}</div>
         <div class="detail-key">State</div><div class="detail-val">${lead.state || '—'}</div>
+        <div class="detail-key">Received</div><div class="detail-val">${fmt(lead.created_at)}</div>
       </div>
     </div>
+    ${referralHtml}
     <div class="detail-section">
       <div class="detail-label">Triage</div>
       <div class="detail-grid">
@@ -582,6 +604,7 @@ function showLeadDetail(id) {
     ${lead.recommended_action ? `<div class="reco-box" style="margin-top:0.75rem">→ ${lead.recommended_action}</div>` : ''}
   `, [
     { label: 'Close', cls: 'btn-outline', action: 'closeModal()' },
+    relatedCase ? { label: 'View case →', cls: 'btn-outline', action: `closeModal();switchTab('cases')` } : null,
     lead.status !== 'referred' ? { label: 'Refer to firm →', cls: 'btn-gold', action: `closeModal();showReferModal('${lead.id}')` } : null,
   ].filter(Boolean));
 }
@@ -768,8 +791,12 @@ async function confirmCaseUpdate(caseId) {
 // ══════════════════════════════════════════════════════════════════════
 async function loadFirms() {
   try {
-    const firms = await api('/api/admin/data?resource=firms');
+    const [firms, cases] = await Promise.all([
+      api('/api/admin/data?resource=firms'),
+      api('/api/admin/data?resource=cases'),
+    ]);
     allFirms = firms;
+    allCases = cases; // refresh so firm case counts are current
     renderFirms(firms);
   } catch(e) {
     document.getElementById('firms-content').innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-text">${e.message}</div></div>`;
@@ -785,25 +812,68 @@ function renderFirms(firms) {
     <div class="table-wrap">
       <table>
         <thead><tr>
-          <th>Firm</th><th>State</th><th>Contact</th><th>Email</th><th>Phone</th><th>Fee %</th><th>Active</th><th style="text-align:right">Actions</th>
+          <th>Firm</th><th>State(s)</th><th>Contact</th><th>Email</th><th>Phone</th><th>Fee %</th><th>Cases</th><th>Active</th><th style="text-align:right">Actions</th>
         </tr></thead>
         <tbody>
-          ${firms.map(f => `
+          ${firms.map(f => {
+            const caseCount = allCases.filter(c => c.firm_id === f.id).length;
+            const activeCount = allCases.filter(c => c.firm_id === f.id && ['referred','accepted','active'].includes(c.status)).length;
+            return `
             <tr>
               <td style="font-weight:500">${f.name}</td>
               <td style="font-size:0.82rem">${(f.states?.length ? f.states : (f.state ? [f.state] : [])).join(', ') || '—'}</td>
               <td style="font-size:0.83rem">${f.contact_name || '—'}</td>
               <td style="font-size:0.78rem"><a href="mailto:${f.contact_email}" style="color:var(--navy)">${f.contact_email}</a></td>
               <td style="font-size:0.83rem">${f.contact_phone || '—'}</td>
-              <td>${f.fee_percentage || 25}%</td>
+              <td>${f.fee_percentage != null ? f.fee_percentage : 25}%</td>
+              <td style="font-size:0.83rem">
+                ${caseCount > 0
+                  ? `<button class="btn btn-outline btn-sm" onclick="showFirmCases('${f.id}')">${caseCount} case${caseCount !== 1 ? 's' : ''}${activeCount > 0 ? ` <span style="color:var(--green)">(${activeCount} active)</span>` : ''}</button>`
+                  : '<span style="color:var(--gray-400);font-size:0.78rem">None</span>'}
+              </td>
               <td><span class="badge ${f.active ? 'badge-accepted' : 'badge-passed'}">${f.active ? 'Yes' : 'No'}</span></td>
               <td><div class="td-actions">
                 <button class="btn btn-outline btn-sm" onclick="showEditFirmModal('${f.id}')">Edit</button>
               </div></td>
-            </tr>`).join('')}
+            </tr>`;
+          }).join('')}
         </tbody>
       </table>
     </div>`;
+}
+
+function showFirmCases(firmId) {
+  const firm = allFirms.find(f => f.id === firmId);
+  if (!firm) return;
+  const cases = allCases.filter(c => c.firm_id === firmId);
+  if (!cases.length) { toast('No cases for this firm yet', 'error'); return; }
+  const fmt = d => d ? new Date(d).toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}) : '—';
+  openModal(`Cases: ${firm.name}`, `
+    <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse">
+        <thead><tr>
+          <th style="padding:8px 10px;background:var(--navy);color:white;text-align:left;font-size:0.75rem">Client</th>
+          <th style="padding:8px 10px;background:var(--navy);color:white;text-align:left;font-size:0.75rem">Status</th>
+          <th style="padding:8px 10px;background:var(--navy);color:white;text-align:left;font-size:0.75rem">Referred</th>
+          <th style="padding:8px 10px;background:var(--navy);color:white;text-align:left;font-size:0.75rem">Accepted</th>
+          <th style="padding:8px 10px;background:var(--navy);color:white;text-align:left;font-size:0.75rem">Settlement</th>
+        </tr></thead>
+        <tbody>
+          ${cases.map(c => `
+            <tr>
+              <td style="padding:8px 10px;border-bottom:1px solid var(--gray-100);font-weight:500;font-size:0.85rem">${c.leads?.name || '—'}<div style="font-size:0.72rem;color:var(--gray-400)">${c.leads?.state || ''}</div></td>
+              <td style="padding:8px 10px;border-bottom:1px solid var(--gray-100)"><span class="badge badge-${c.status}">${c.status}</span></td>
+              <td style="padding:8px 10px;border-bottom:1px solid var(--gray-100);font-size:0.78rem;color:var(--gray-400)">${fmt(c.referred_at)}</td>
+              <td style="padding:8px 10px;border-bottom:1px solid var(--gray-100);font-size:0.78rem;color:var(--gray-400)">${fmt(c.accepted_at)}</td>
+              <td style="padding:8px 10px;border-bottom:1px solid var(--gray-100);font-size:0.83rem">${c.settlement_amount ? '$' + parseFloat(c.settlement_amount).toLocaleString() : '—'}</td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+  `, [
+    { label: 'Close', cls: 'btn-outline', action: 'closeModal()' },
+    { label: 'View all cases →', cls: 'btn-outline', action: `closeModal();switchTab('cases')` },
+  ]);
 }
 
 const ALL_STATES = ['Alabama','Alaska','Arizona','Arkansas','California','Colorado','Connecticut','Delaware','Florida','Georgia','Hawaii','Idaho','Illinois','Indiana','Iowa','Kansas','Kentucky','Louisiana','Maine','Maryland','Massachusetts','Michigan','Minnesota','Mississippi','Missouri','Montana','Nebraska','Nevada','New Hampshire','New Jersey','New Mexico','New York','North Carolina','North Dakota','Ohio','Oklahoma','Oregon','Pennsylvania','Rhode Island','South Carolina','South Dakota','Tennessee','Texas','Utah','Vermont','Virginia','Washington','West Virginia','Wisconsin','Wyoming'];
@@ -893,20 +963,28 @@ function showEditFirmModal(firmId) {
 }
 
 async function confirmEditFirm(firmId) {
-  closeModal();
+  // Read all values BEFORE closing modal so DOM elements are still accessible
   const states = getSelectedStates('efirm');
+  const name = document.getElementById('efirm-name').value.trim();
+  const email = document.getElementById('efirm-email').value.trim();
+  const fee = parseFloat(document.getElementById('efirm-fee').value);
+  const active = document.getElementById('efirm-active').value === 'true';
+  const contact = document.getElementById('efirm-contact').value.trim() || null;
+  const phone = document.getElementById('efirm-phone').value.trim() || null;
+  const notes = document.getElementById('efirm-notes').value.trim() || null;
   try {
     await api(`/api/admin/data?resource=firms&id=${firmId}`, 'PATCH', {
-      name: document.getElementById('efirm-name').value.trim(),
+      name,
       state: states[0] || null,
       states: states.length ? states : null,
-      contact_name: document.getElementById('efirm-contact').value.trim() || null,
-      contact_email: document.getElementById('efirm-email').value.trim(),
-      contact_phone: document.getElementById('efirm-phone').value.trim() || null,
-      fee_percentage: parseFloat(document.getElementById('efirm-fee').value) || 25,
-      active: document.getElementById('efirm-active').value === 'true',
-      notes: document.getElementById('efirm-notes').value.trim() || null,
+      contact_name: contact,
+      contact_email: email,
+      contact_phone: phone,
+      fee_percentage: isNaN(fee) ? 25 : fee,
+      active,
+      notes,
     });
+    closeModal(); // only close after successful save — errors stay visible in modal
     toast('Firm updated', 'success');
     loadFirms();
   } catch(e) { toast(e.message, 'error'); }

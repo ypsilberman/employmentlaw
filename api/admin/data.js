@@ -187,7 +187,7 @@ export default async function handler(req, res) {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${process.env.RESEND_API_KEY}` },
             body: JSON.stringify({
-              from: process.env.FROM_EMAIL || 'onboarding@resend.dev',
+              from: process.env.FROM_EMAIL || 'leads@workerrights.ai',
               to: firm.contact_email,
               subject: `[WorkerRights.ai Referral] ${lead.name || 'New Client'} — ${lead.state || ''} — ${(lead.claims || 'Employment claim').split(',')[0].split('(')[0].trim()}`,
               html: emailHtml,
