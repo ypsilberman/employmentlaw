@@ -50,7 +50,7 @@ async function getStats() {
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
@@ -252,6 +252,30 @@ export default async function handler(req, res) {
       }
 
       return res.status(400).json({ error: 'Unknown resource' });
+    }
+
+    // ── DELETE ─────────────────────────────────────────────────────
+    if (req.method === 'DELETE') {
+      if (!id) return res.status(400).json({ error: 'id required for DELETE' });
+      if (!['leads', 'cases', 'firms'].includes(resource)) {
+        return res.status(400).json({ error: 'Unknown resource' });
+      }
+
+      // Schema-level cascades handle the rest: deleting a lead cascades to its
+      // cases and their status_updates; deleting a firm sets its cases' firm_id
+      // to NULL. Deleting a case additionally frees its lead to be referred
+      // again by reverting it to 'new'.
+      if (resource === 'cases') {
+        const [existing] = await supa('GET', 'cases', { select: 'lead_id', id });
+        await supa('DELETE', 'cases', { id });
+        if (existing?.lead_id) {
+          await supa('PATCH', 'leads', { id: existing.lead_id, body: { status: 'new' } });
+        }
+        return res.status(200).json({ success: true });
+      }
+
+      await supa('DELETE', resource, { id });
+      return res.status(200).json({ success: true });
     }
 
     return res.status(405).json({ error: 'Method not allowed' });

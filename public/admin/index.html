@@ -531,6 +531,7 @@ function renderLeads(leads) {
                 ${l.status !== 'referred' && l.status !== 'passed' ? `<button class="btn btn-gold btn-sm" onclick="showReferModal('${l.id}')">Refer →</button>` : ''}
                 <button class="btn btn-outline btn-sm" onclick="showLeadDetail('${l.id}')">Details</button>
                 ${l.status === 'new' ? `<button class="btn btn-outline btn-sm" onclick="markLeadStatus('${l.id}','passed')">Pass</button>` : ''}
+                <button class="btn btn-danger btn-sm" onclick="deleteLead('${l.id}')">Delete</button>
               </div></td>
             </tr>`).join('')}
         </tbody>
@@ -604,6 +605,7 @@ function showLeadDetail(id) {
     ${lead.recommended_action ? `<div class="reco-box" style="margin-top:0.75rem">→ ${lead.recommended_action}</div>` : ''}
   `, [
     { label: 'Close', cls: 'btn-outline', action: 'closeModal()' },
+    { label: 'Delete', cls: 'btn-danger', action: `deleteLead('${lead.id}')` },
     relatedCase ? { label: 'View case →', cls: 'btn-outline', action: `closeModal();switchTab('cases')` } : null,
     lead.status !== 'referred' ? { label: 'Refer to firm →', cls: 'btn-gold', action: `closeModal();showReferModal('${lead.id}')` } : null,
   ].filter(Boolean));
@@ -722,6 +724,7 @@ function renderCases(cases) {
               <td style="font-size:0.83rem;color:${c.received_fee ? 'var(--green)' : 'var(--gray-400)'}">${c.received_fee ? '$' + parseFloat(c.received_fee).toLocaleString() : '—'}</td>
               <td><div class="td-actions">
                 <button class="btn btn-outline btn-sm" onclick="showUpdateCaseModal('${c.id}')">Update</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteCase('${c.id}')">Delete</button>
               </div></td>
             </tr>`).join('')}
         </tbody>
@@ -834,6 +837,7 @@ function renderFirms(firms) {
               <td><span class="badge ${f.active ? 'badge-accepted' : 'badge-passed'}">${f.active ? 'Yes' : 'No'}</span></td>
               <td><div class="td-actions">
                 <button class="btn btn-outline btn-sm" onclick="showEditFirmModal('${f.id}')">Edit</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteFirm('${f.id}')">Delete</button>
               </div></td>
             </tr>`;
           }).join('')}
@@ -957,6 +961,7 @@ function showEditFirmModal(firmId) {
     <div class="form-group"><label class="form-label">Notes</label><textarea class="form-textarea" id="efirm-notes">${f.notes || ''}</textarea></div>
   `, [
     { label: 'Cancel', cls: 'btn-outline', action: 'closeModal()' },
+    { label: 'Delete', cls: 'btn-danger', action: `deleteFirm('${firmId}')` },
     { label: 'Save', cls: 'btn-primary', action: `confirmEditFirm('${firmId}')` },
   ]);
   setTimeout(() => { document.getElementById('efirm-states-container').innerHTML = stateCheckboxes(currentStates, 'efirm'); }, 0);
@@ -1109,6 +1114,65 @@ function toast(msg, type = 'success') {
   el.className = `show ${type}`;
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => el.classList.remove('show'), 3500);
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// DELETE
+// ══════════════════════════════════════════════════════════════════════
+function deleteLead(id) {
+  const lead = allLeads.find(l => l.id === id);
+  const name = lead?.name || 'this lead';
+  const relatedCase = allCases.find(c => c.lead_id === id);
+  const warn = relatedCase
+    ? `<div class="flag-box">⚠ This lead has a referred case (${relatedCase.firms?.name || 'a firm'}). Deleting the lead will also permanently delete that case and its status history.</div>`
+    : '';
+  openModal('Delete lead', `
+    <div class="detail-value">Permanently delete <strong>${name}</strong>? This cannot be undone.</div>
+    ${warn}
+  `, [
+    { label: 'Cancel', cls: 'btn-outline', action: 'closeModal()' },
+    { label: 'Delete', cls: 'btn-danger', action: `doDelete('leads','${id}')` },
+  ]);
+}
+
+function deleteCase(id) {
+  const c = allCases.find(x => x.id === id);
+  const name = c?.leads?.name || 'this case';
+  openModal('Delete case', `
+    <div class="detail-value">Permanently delete the case for <strong>${name}</strong>? Its status-update history will also be deleted. The lead itself is kept and set back to "new" so it can be referred again.</div>
+  `, [
+    { label: 'Cancel', cls: 'btn-outline', action: 'closeModal()' },
+    { label: 'Delete', cls: 'btn-danger', action: `doDelete('cases','${id}')` },
+  ]);
+}
+
+function deleteFirm(id) {
+  const firm = allFirms.find(f => f.id === id);
+  const name = firm?.name || 'this firm';
+  const count = allCases.filter(c => c.firm_id === id).length;
+  const warn = count
+    ? `<div class="flag-box">⚠ ${count} case${count !== 1 ? 's' : ''} reference this firm. They will remain but become unassigned (no firm).</div>`
+    : '';
+  openModal('Delete firm', `
+    <div class="detail-value">Permanently delete <strong>${name}</strong>? This cannot be undone.</div>
+    ${warn}
+  `, [
+    { label: 'Cancel', cls: 'btn-outline', action: 'closeModal()' },
+    { label: 'Delete', cls: 'btn-danger', action: `doDelete('firms','${id}')` },
+  ]);
+}
+
+async function doDelete(resource, id) {
+  closeModal();
+  try {
+    await api(`/api/admin/data?resource=${resource}&id=${id}`, 'DELETE');
+    toast('Deleted', 'success');
+    if (resource === 'leads') { loadLeads(currentLeadFilter); loadCases(currentCaseFilter); }
+    if (resource === 'cases') { loadCases(currentCaseFilter); loadLeads(currentLeadFilter); }
+    if (resource === 'firms') { loadFirms(); loadCases(currentCaseFilter); }
+    loadStats();
+    loadDashboard();
+  } catch(e) { toast(e.message, 'error'); }
 }
 
 // ══════════════════════════════════════════════════════════════════════
