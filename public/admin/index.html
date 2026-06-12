@@ -598,12 +598,13 @@ async function showReferModal(leadId) {
     try { firms = await api('/api/admin/data?resource=firms'); allFirms = firms; } catch(e) {}
   }
 
-  const stateFirms = firms.filter(f => f.active && f.state === lead.state);
-  const otherFirms = firms.filter(f => f.active && f.state !== lead.state);
+  const firmStates = f => f.states?.length ? f.states : (f.state ? [f.state] : []);
+  const stateFirms = firms.filter(f => f.active && firmStates(f).includes(lead.state));
+  const otherFirms = firms.filter(f => f.active && !firmStates(f).includes(lead.state));
   const firmOptions = [
     '<option value="">Select a firm…</option>',
     stateFirms.length ? `<optgroup label="${lead.state} firms">${stateFirms.map(f => `<option value="${f.id}">${f.name} (${f.fee_percentage || 25}%)</option>`).join('')}</optgroup>` : '',
-    otherFirms.length ? `<optgroup label="Other states">${otherFirms.map(f => `<option value="${f.id}">${f.name} — ${f.state} (${f.fee_percentage || 25}%)</option>`).join('')}</optgroup>` : '',
+    otherFirms.length ? `<optgroup label="Other states">${otherFirms.map(f => `<option value="${f.id}">${f.name} — ${firmStates(f).join(', ')} (${f.fee_percentage || 25}%)</option>`).join('')}</optgroup>` : '',
   ].join('');
 
   if (!firms.length) {
@@ -790,7 +791,7 @@ function renderFirms(firms) {
           ${firms.map(f => `
             <tr>
               <td style="font-weight:500">${f.name}</td>
-              <td>${f.state}</td>
+              <td style="font-size:0.82rem">${(f.states?.length ? f.states : (f.state ? [f.state] : [])).join(', ') || '—'}</td>
               <td style="font-size:0.83rem">${f.contact_name || '—'}</td>
               <td style="font-size:0.78rem"><a href="mailto:${f.contact_email}" style="color:var(--navy)">${f.contact_email}</a></td>
               <td style="font-size:0.83rem">${f.contact_phone || '—'}</td>
@@ -805,16 +806,22 @@ function renderFirms(firms) {
     </div>`;
 }
 
+const ALL_STATES = ['Alabama','Alaska','Arizona','Arkansas','California','Colorado','Connecticut','Delaware','Florida','Georgia','Hawaii','Idaho','Illinois','Indiana','Iowa','Kansas','Kentucky','Louisiana','Maine','Maryland','Massachusetts','Michigan','Minnesota','Mississippi','Missouri','Montana','Nebraska','Nevada','New Hampshire','New Jersey','New Mexico','New York','North Carolina','North Dakota','Ohio','Oklahoma','Oregon','Pennsylvania','Rhode Island','South Carolina','South Dakota','Tennessee','Texas','Utah','Vermont','Virginia','Washington','West Virginia','Wisconsin','Wyoming'];
+
+function stateCheckboxes(selectedStates = [], prefix = 'firm') {
+  return `<div style="border:1px solid var(--gray-200);border-radius:var(--radius);padding:0.75rem;max-height:160px;overflow-y:auto;background:var(--white)"><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.25rem 0.5rem">${ALL_STATES.map(s => `<label style="display:flex;align-items:center;gap:5px;font-size:0.78rem;cursor:pointer;padding:2px 0"><input type="checkbox" name="${prefix}-states" value="${s}" ${selectedStates.includes(s)?'checked':''} style="accent-color:var(--navy)">${s}</label>`).join('')}</div></div><div style="font-size:0.72rem;color:var(--gray-400);margin-top:4px">Select all states where this firm accepts cases</div>`;
+}
+
+function getSelectedStates(prefix = 'firm') {
+  return [...document.querySelectorAll(`input[name="${prefix}-states"]:checked`)].map(el => el.value);
+}
+
 function showAddFirmModal() {
   openModal('Add Referral Firm', `
-    <div class="form-row">
-      <div class="form-group"><label class="form-label">Firm name *</label><input class="form-input" id="firm-name" placeholder="Smith & Associates LLP"></div>
-      <div class="form-group"><label class="form-label">State *</label>
-        <select class="form-select" id="firm-state">
-          <option value="">Select…</option>
-          ${['Alabama','Alaska','Arizona','Arkansas','California','Colorado','Connecticut','Delaware','Florida','Georgia','Hawaii','Idaho','Illinois','Indiana','Iowa','Kansas','Kentucky','Louisiana','Maine','Maryland','Massachusetts','Michigan','Minnesota','Mississippi','Missouri','Montana','Nebraska','Nevada','New Hampshire','New Jersey','New Mexico','New York','North Carolina','North Dakota','Ohio','Oklahoma','Oregon','Pennsylvania','Rhode Island','South Carolina','South Dakota','Tennessee','Texas','Utah','Vermont','Virginia','Washington','West Virginia','Wisconsin','Wyoming'].map(s => `<option>${s}</option>`).join('')}
-        </select>
-      </div>
+    <div class="form-group"><label class="form-label">Firm name *</label><input class="form-input" id="firm-name" placeholder="Smith & Associates LLP"></div>
+    <div class="form-group">
+      <label class="form-label">States * <span style="font-weight:400;color:var(--gray-400)">(select all that apply)</span></label>
+      <div id="firm-states-container"></div>
     </div>
     <div class="form-row">
       <div class="form-group"><label class="form-label">Contact name</label><input class="form-input" id="firm-contact" placeholder="Jane Smith"></div>
@@ -829,17 +836,22 @@ function showAddFirmModal() {
     { label: 'Cancel', cls: 'btn-outline', action: 'closeModal()' },
     { label: 'Add firm', cls: 'btn-primary', action: 'confirmAddFirm()' },
   ]);
+  // Render checkboxes after modal is in DOM
+  setTimeout(() => { document.getElementById('firm-states-container').innerHTML = stateCheckboxes([], 'firm'); }, 0);
 }
 
 async function confirmAddFirm() {
   const name = document.getElementById('firm-name').value.trim();
-  const state = document.getElementById('firm-state').value;
+  const states = getSelectedStates('firm');
   const email = document.getElementById('firm-email').value.trim();
-  if (!name || !state || !email) { toast('Name, state, and email required', 'error'); return; }
+  if (!name || !states.length || !email) { toast('Name, at least one state, and email required', 'error'); return; }
   closeModal();
   try {
     await api('/api/admin/data?resource=firms', 'POST', {
-      name, state, contact_email: email,
+      name,
+      state: states[0],
+      states: states,
+      contact_email: email,
       contact_name: document.getElementById('firm-contact').value.trim() || null,
       contact_phone: document.getElementById('firm-phone').value.trim() || null,
       fee_percentage: parseFloat(document.getElementById('firm-fee').value) || 25,
@@ -854,10 +866,15 @@ async function confirmAddFirm() {
 function showEditFirmModal(firmId) {
   const f = allFirms.find(x => x.id === firmId);
   if (!f) return;
+  const currentStates = f.states || (f.state ? [f.state] : []);
   openModal(`Edit: ${f.name}`, `
     <div class="form-row">
       <div class="form-group"><label class="form-label">Firm name</label><input class="form-input" id="efirm-name" value="${f.name || ''}"></div>
       <div class="form-group"><label class="form-label">Contact name</label><input class="form-input" id="efirm-contact" value="${f.contact_name || ''}"></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">States <span style="font-weight:400;color:var(--gray-400)">(select all that apply)</span></label>
+      <div id="efirm-states-container"></div>
     </div>
     <div class="form-row">
       <div class="form-group"><label class="form-label">Contact email</label><input class="form-input" type="email" id="efirm-email" value="${f.contact_email || ''}"></div>
@@ -872,13 +889,17 @@ function showEditFirmModal(firmId) {
     { label: 'Cancel', cls: 'btn-outline', action: 'closeModal()' },
     { label: 'Save', cls: 'btn-primary', action: `confirmEditFirm('${firmId}')` },
   ]);
+  setTimeout(() => { document.getElementById('efirm-states-container').innerHTML = stateCheckboxes(currentStates, 'efirm'); }, 0);
 }
 
 async function confirmEditFirm(firmId) {
   closeModal();
+  const states = getSelectedStates('efirm');
   try {
     await api(`/api/admin/data?resource=firms&id=${firmId}`, 'PATCH', {
       name: document.getElementById('efirm-name').value.trim(),
+      state: states[0] || null,
+      states: states.length ? states : null,
       contact_name: document.getElementById('efirm-contact').value.trim() || null,
       contact_email: document.getElementById('efirm-email').value.trim(),
       contact_phone: document.getElementById('efirm-phone').value.trim() || null,
