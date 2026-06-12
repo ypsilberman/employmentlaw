@@ -1,3 +1,20 @@
+function escapeHtml(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+// Assistant turns are stored raw, including the hidden triage block and the
+// [READY_FOR_ASSESSMENT] marker. Strip both so the transcript reads as the
+// clean conversation the claimant actually saw.
+function stripTriage(s) {
+  return String(s == null ? '' : s)
+    .replace(/===TRIAGE===[\s\S]*?===END===/g, '')
+    .replace(/\[READY_FOR_ASSESSMENT\]/g, '')
+    .trim();
+}
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -5,7 +22,7 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { triage, formData } = req.body;
+  const { triage, formData, transcript } = req.body;
   if (!triage || !formData) return res.status(400).json({ error: 'Missing triage or formData' });
 
   const RESEND_API_KEY = process.env.RESEND_API_KEY;
@@ -66,6 +83,33 @@ export default async function handler(req, res) {
     console.error('Supabase save error:', e.message);
   }
 
+  // ── Render intake transcript ────────────────────────────────────────────────
+  const turns = Array.isArray(transcript) ? transcript : [];
+  const transcriptHtml = turns.map(m => {
+    const isUser = m.role === 'user';
+    const text = isUser ? String(m.content || '').trim() : stripTriage(m.content);
+    if (!text) return '';
+    const label = isUser ? 'Claimant' : 'AI Intake';
+    const labelColor = isUser ? '#0D1B2A' : '#2E6B4F';
+    return `<div style="margin-bottom:0.9rem">
+            <div style="font-size:0.68rem;letter-spacing:0.08em;text-transform:uppercase;color:${labelColor};font-weight:700;margin-bottom:0.25rem">${label}</div>
+            <div style="font-size:0.88rem;color:#1A1816;line-height:1.55">${escapeHtml(text).replace(/\n/g, '<br>')}</div>
+          </div>`;
+  }).filter(Boolean).join('');
+
+  const transcriptSection = transcriptHtml ? `
+      <div style="margin-bottom:1.5rem">
+        <div style="font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:#9C9890;font-weight:600;margin-bottom:0.75rem">Full Intake Transcript</div>
+        ${transcriptHtml}
+      </div>` : '';
+
+  const transcriptText = turns.map(m => {
+    const isUser = m.role === 'user';
+    const text = isUser ? String(m.content || '').trim() : stripTriage(m.content);
+    if (!text) return '';
+    return `${isUser ? 'CLAIMANT' : 'AI INTAKE'}:\n${text}`;
+  }).filter(Boolean).join('\n\n');
+
   // ── Build email ─────────────────────────────────────────────────────────────
   const htmlBody = `
 <!DOCTYPE html>
@@ -116,6 +160,7 @@ export default async function handler(req, res) {
         <div style="font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:#9C9890;font-weight:600;margin-bottom:0.4rem">Recommended action</div>
         <div style="font-size:0.9rem;color:#1A1816;font-weight:500">${triage.recommendedAction || 'Review case details and determine appropriate follow-up.'}</div>
       </div>
+      ${transcriptSection}
       <div style="display:flex;gap:0.75rem;flex-wrap:wrap">
         ${formData.email ? `<a href="mailto:${formData.email}?subject=Your Employment Law Case Evaluation — WorkerRights.ai&body=Dear ${(formData.name||'').split(' ')[0]}," style="display:inline-block;background:#0D1B2A;color:white;padding:0.65rem 1.25rem;border-radius:4px;text-decoration:none;font-size:0.85rem;font-weight:500">Email ${(formData.name||'').split(' ')[0]} →</a>` : ''}
         ${formData.phone ? `<a href="tel:${formData.phone}" style="display:inline-block;background:#C9A84C;color:#0D1B2A;padding:0.65rem 1.25rem;border-radius:4px;text-decoration:none;font-size:0.85rem;font-weight:500">Call ${formData.phone} →</a>` : ''}
@@ -129,7 +174,7 @@ export default async function handler(req, res) {
 </body>
 </html>`;
 
-  const textBody = `NEW LEAD — WorkerRights.ai\n${priorityLabel}\nTier: ${triage.tier} | Value: ${triage.estimatedValue} | Deadline: ${triage.deadlineUrgency}\n\nCONTACT\nName: ${formData.name}\nEmail: ${formData.email}\nPhone: ${formData.phone || 'Not provided'}\nState: ${formData.state}\n\nAI ASSESSMENT\nClaims: ${triage.claims}\nStrength: ${triage.strengthNotes}\nRed flags: ${triage.redFlags || 'None'}\n\nRECOMMENDED ACTION\n${triage.recommendedAction}`.trim();
+  const textBody = `NEW LEAD — WorkerRights.ai\n${priorityLabel}\nTier: ${triage.tier} | Value: ${triage.estimatedValue} | Deadline: ${triage.deadlineUrgency}\n\nCONTACT\nName: ${formData.name}\nEmail: ${formData.email}\nPhone: ${formData.phone || 'Not provided'}\nState: ${formData.state}\n\nAI ASSESSMENT\nClaims: ${triage.claims}\nStrength: ${triage.strengthNotes}\nRed flags: ${triage.redFlags || 'None'}\n\nRECOMMENDED ACTION\n${triage.recommendedAction}${transcriptText ? `\n\nFULL INTAKE TRANSCRIPT\n${transcriptText}` : ''}`.trim();
 
   try {
     const emailRes = await fetch('https://api.resend.com/emails', {
