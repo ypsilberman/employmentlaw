@@ -26,7 +26,7 @@ export default async function handler(req, res) {
   if (!triage || !formData) return res.status(400).json({ error: 'Missing triage or formData' });
 
   const RESEND_API_KEY = process.env.RESEND_API_KEY;
-  const TO_EMAIL = 'ypsilberman@gmail.com';
+  const TO_EMAIL = process.env.TO_EMAIL || 'leads@workerrights.ai';
   const FROM_EMAIL = process.env.FROM_EMAIL || 'onboarding@resend.dev';
 
   const tierColors = { HIGH: '#2E6B4F', MEDIUM: '#B07010', LOW: '#5C5A55' };
