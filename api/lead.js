@@ -27,7 +27,7 @@ export default async function handler(req, res) {
 
   const RESEND_API_KEY = process.env.RESEND_API_KEY;
   const TO_EMAIL = process.env.TO_EMAIL || 'leads@workerrights.ai';
-  const FROM_EMAIL = process.env.FROM_EMAIL || 'onboarding@resend.dev';
+  const FROM_EMAIL = process.env.FROM_EMAIL || 'leads@workerrights.ai';
 
   const tierColors = { HIGH: '#2E6B4F', MEDIUM: '#B07010', LOW: '#5C5A55' };
   const priorityLabels = {
