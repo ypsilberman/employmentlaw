@@ -48,6 +48,74 @@ async function getStats() {
   };
 }
 
+// Non-engagement / decline letter sent to a client when a lead is passed on.
+// Carefully worded: thanks them, declines without judging the merits, warns
+// that employment claims have strict deadlines and to consult other counsel
+// promptly, and makes clear no attorney-client relationship was formed.
+async function sendDeclineEmail(lead) {
+  const RESEND_API_KEY = process.env.RESEND_API_KEY;
+  if (!RESEND_API_KEY || !lead.email) return false;
+  const FROM_EMAIL = process.env.FROM_EMAIL || 'leads@workerrights.ai';
+  const REPLY_TO = process.env.REPLY_TO_EMAIL || 'leads@workerrights.ai';
+  const first = (lead.name || '').trim().split(/\s+/)[0] || 'there';
+
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"></head>
+<body style="font-family:Georgia,'Times New Roman',serif;background:#f4f4f0;padding:2rem;margin:0;color:#1A1816">
+  <div style="max-width:600px;margin:0 auto;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08)">
+    <div style="background:#0D1B2A;padding:1.25rem 2rem;border-bottom:3px solid #C9A84C">
+      <div style="font-size:0.7rem;letter-spacing:0.15em;text-transform:uppercase;color:#C9A84C">WorkerRights.ai</div>
+    </div>
+    <div style="padding:2rem;font-size:0.95rem;line-height:1.7">
+      <p>Dear ${first},</p>
+      <p>Thank you for taking the time to share the details of your situation with us. We appreciate the trust you placed in WorkerRights.ai.</p>
+      <p>After carefully reviewing the information you provided, we have decided that we are not able to take on your matter at this time. This decision is not a judgment that your concerns lack merit &mdash; only that we are not the right fit to assist you. Another attorney may evaluate your situation differently.</p>
+      <p><strong>Please keep this in mind:</strong> Employment-related claims are subject to strict deadlines (often called statutes of limitations), and some require filing a charge with a government agency within a limited window. Because these deadlines can be short, we strongly encourage you to consult another attorney as soon as possible if you wish to pursue your matter, so that your rights are not lost.</p>
+      <p>If you would like help finding other counsel, your state or local bar association&rsquo;s lawyer referral service can be a good place to start.</p>
+      <p>Please understand that this message is not legal advice, and no attorney-client relationship has been formed between you and WorkerRights.ai.</p>
+      <p>We wish you the very best.</p>
+      <p style="margin-top:1.5rem">Sincerely,<br>The WorkerRights.ai Team</p>
+    </div>
+  </div>
+</body></html>`;
+
+  const text = `Dear ${first},
+
+Thank you for taking the time to share the details of your situation with us. We appreciate the trust you placed in WorkerRights.ai.
+
+After carefully reviewing the information you provided, we have decided that we are not able to take on your matter at this time. This decision is not a judgment that your concerns lack merit — only that we are not the right fit to assist you. Another attorney may evaluate your situation differently.
+
+PLEASE KEEP THIS IN MIND: Employment-related claims are subject to strict deadlines (often called statutes of limitations), and some require filing a charge with a government agency within a limited window. Because these deadlines can be short, we strongly encourage you to consult another attorney as soon as possible if you wish to pursue your matter, so that your rights are not lost.
+
+If you would like help finding other counsel, your state or local bar association's lawyer referral service can be a good place to start.
+
+Please understand that this message is not legal advice, and no attorney-client relationship has been formed between you and WorkerRights.ai.
+
+We wish you the very best.
+
+Sincerely,
+The WorkerRights.ai Team`;
+
+  try {
+    const r = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${RESEND_API_KEY}` },
+      body: JSON.stringify({
+        from: FROM_EMAIL,
+        to: lead.email,
+        reply_to: REPLY_TO,
+        subject: 'Regarding your employment law inquiry — WorkerRights.ai',
+        html,
+        text,
+      })
+    });
+    if (!r.ok) { console.error('Decline email error:', await r.text()); return false; }
+    return true;
+  } catch (e) {
+    console.error('Decline email send failed:', e.message);
+    return false;
+  }
+}
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE, OPTIONS');
@@ -111,6 +179,16 @@ export default async function handler(req, res) {
 
     // ── POST ───────────────────────────────────────────────────────
     if (req.method === 'POST') {
+
+      // Pass on a lead → mark 'passed' and email the client a decline letter
+      if (resource === 'decline') {
+        if (!id) return res.status(400).json({ error: 'id required' });
+        const [lead] = await supa('GET', 'leads', { select: '*', id });
+        if (!lead) return res.status(404).json({ error: 'Lead not found' });
+        await supa('PATCH', 'leads', { id, body: { status: 'passed' } });
+        const emailSent = lead.email ? await sendDeclineEmail(lead) : false;
+        return res.status(200).json({ success: true, emailSent, hadEmail: !!lead.email });
+      }
 
       // Refer a lead to a firm → creates case + sends intro email
       if (resource === 'cases') {

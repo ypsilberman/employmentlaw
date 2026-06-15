@@ -530,7 +530,7 @@ function renderLeads(leads) {
               <td><div class="td-actions">
                 ${l.status !== 'referred' && l.status !== 'passed' ? `<button class="btn btn-gold btn-sm" onclick="showReferModal('${l.id}')">Refer →</button>` : ''}
                 <button class="btn btn-outline btn-sm" onclick="showLeadDetail('${l.id}')">Details</button>
-                ${l.status === 'new' ? `<button class="btn btn-outline btn-sm" onclick="markLeadStatus('${l.id}','passed')">Pass</button>` : ''}
+                ${l.status === 'new' ? `<button class="btn btn-outline btn-sm" onclick="passLead('${l.id}')">Pass</button>` : ''}
                 <button class="btn btn-danger btn-sm" onclick="deleteLead('${l.id}')">Delete</button>
               </div></td>
             </tr>`).join('')}
@@ -539,12 +539,20 @@ function renderLeads(leads) {
     </div>`;
 }
 
-async function markLeadStatus(id, status) {
+async function passLead(id) {
+  const lead = allLeads.find(l => l.id === id);
+  const name = lead?.name || 'this lead';
+  const msg = lead?.email
+    ? `Pass on ${name} and email a decline letter to ${lead.email}?\n\nThis sends a real email to the client and cannot be undone.`
+    : `Pass on ${name}?\n\nNo email is on file, so no decline letter will be sent.`;
+  if (!confirm(msg)) return;
   try {
-    await api(`/api/admin/data?resource=leads&id=${id}`, 'PATCH', { status });
-    toast('Lead updated', 'success');
+    const r = await api(`/api/admin/data?resource=decline&id=${id}`, 'POST');
+    toast(r.emailSent ? 'Passed — decline email sent' : (r.hadEmail ? 'Passed — but decline email failed to send' : 'Lead passed (no email on file)'),
+          r.hadEmail && !r.emailSent ? 'error' : 'success');
     loadLeads(currentLeadFilter);
     loadStats();
+    loadDashboard();
   } catch(e) { toast(e.message, 'error'); }
 }
 
