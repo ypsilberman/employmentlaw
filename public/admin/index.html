@@ -172,6 +172,20 @@ tr:hover td{background:var(--gray-100)}
   .form-row{grid-template-columns:1fr}
   nav{padding:0 1rem;gap:1rem}
   .content{padding:1rem}
+  /* let cases/firms tables scroll sideways instead of clipping */
+  .table-wrap{overflow-x:auto}
+  /* leads table → stacked cards: name + state + claims on the left, tier/status/date on the right */
+  .leads-table thead{display:none}
+  .leads-table,.leads-table tbody{display:block;width:100%}
+  .leads-table tr{display:grid;grid-template-columns:1fr auto;gap:0.1rem 0.75rem;align-items:center;padding:0.85rem 1rem;border-bottom:1px solid var(--gray-200)}
+  .leads-table td{display:block;padding:0;border:none}
+  .leads-table .col-name{grid-column:1;grid-row:1;font-size:0.95rem}
+  .leads-table .col-state{grid-column:1;grid-row:2;font-size:0.8rem;color:var(--gray-400)}
+  .leads-table .col-claims{grid-column:1;grid-row:3;max-width:none!important;white-space:normal!important;overflow:visible!important;margin-top:0.15rem}
+  .leads-table .col-tier{grid-column:2;grid-row:1;justify-self:end}
+  .leads-table .col-status{grid-column:2;grid-row:2;justify-self:end}
+  .leads-table .col-received{grid-column:2;grid-row:3;justify-self:end}
+  .leads-table .col-actions{display:none}
 }
 </style>
 </head>
@@ -514,20 +528,20 @@ function renderLeads(leads) {
   }
   document.getElementById('leads-content').innerHTML = `
     <div class="table-wrap">
-      <table>
+      <table class="leads-table">
         <thead><tr>
           <th>Name</th><th>State</th><th>Tier</th><th>Claims</th><th>Received</th><th>Status</th><th style="text-align:right">Actions</th>
         </tr></thead>
         <tbody>
           ${leads.map(l => `
-            <tr>
-              <td style="font-weight:500;cursor:pointer" onclick="showLeadDetail('${l.id}')">${l.name || '—'}</td>
-              <td>${l.state || '—'}</td>
-              <td><span class="badge badge-${l.tier}">${l.tier || '?'}</span></td>
-              <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:0.78rem;color:var(--gray-600)">${(l.claims || '—').split('(')[0].trim()}</td>
-              <td style="font-size:0.78rem;color:var(--gray-400)">${timeAgo(l.created_at)}</td>
-              <td><span class="badge badge-${l.status}">${l.status}</span></td>
-              <td><div class="td-actions">
+            <tr class="lead-row" onclick="showLeadDetail('${l.id}')" style="cursor:pointer">
+              <td class="col-name" style="font-weight:500">${l.name || '—'}</td>
+              <td class="col-state">${l.state || '—'}</td>
+              <td class="col-tier"><span class="badge badge-${l.tier}">${l.tier || '?'}</span></td>
+              <td class="col-claims" style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:0.78rem;color:var(--gray-600)">${(l.claims || '—').split('(')[0].trim()}</td>
+              <td class="col-received" style="font-size:0.78rem;color:var(--gray-400)">${timeAgo(l.created_at)}</td>
+              <td class="col-status"><span class="badge badge-${l.status}">${l.status}</span></td>
+              <td class="col-actions" onclick="event.stopPropagation()"><div class="td-actions">
                 ${l.status !== 'referred' && l.status !== 'passed' ? `<button class="btn btn-gold btn-sm" onclick="showReferModal('${l.id}')">Refer →</button>` : ''}
                 <button class="btn btn-outline btn-sm" onclick="showLeadDetail('${l.id}')">Details</button>
                 ${l.status === 'new' ? `<button class="btn btn-outline btn-sm" onclick="passLead('${l.id}')">Pass</button>` : ''}
