@@ -613,6 +613,7 @@ function showLeadDetail(id) {
     ${lead.recommended_action ? `<div class="reco-box" style="margin-top:0.75rem">→ ${lead.recommended_action}</div>` : ''}
   `, [
     { label: 'Close', cls: 'btn-outline', action: 'closeModal()' },
+    lead.status === 'new' ? { label: 'Pass', cls: 'btn-outline', action: `closeModal();passLead('${lead.id}')` } : null,
     { label: 'Delete', cls: 'btn-danger', action: `deleteLead('${lead.id}')` },
     relatedCase ? { label: 'View case →', cls: 'btn-outline', action: `closeModal();switchTab('cases')` } : null,
     lead.status !== 'referred' ? { label: 'Refer to firm →', cls: 'btn-gold', action: `closeModal();showReferModal('${lead.id}')` } : null,
