@@ -375,7 +375,20 @@ async function init() {
   }
   loadStats();
   loadDashboard();
-  loadLeads();
+  await loadLeads();
+  openDeepLinkedLead();
+}
+
+// If the admin was opened from a lead email's "View in Admin →" link
+// (/admin?lead=<id>), jump straight to that lead's detail view.
+function openDeepLinkedLead() {
+  if (!pw) return;
+  const id = new URLSearchParams(location.search).get('lead');
+  if (!id) return;
+  history.replaceState(null, '', location.pathname); // don't re-open on a later refresh
+  switchTab('leads');
+  if (allLeads.find(l => l.id === id)) showLeadDetail(id);
+  else toast('That lead was not found — it may have been deleted.', 'error');
 }
 
 // ══════════════════════════════════════════════════════════════════════
