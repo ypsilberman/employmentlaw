@@ -28,7 +28,6 @@ CREATE TABLE IF NOT EXISTS leads (
   employer_size TEXT,
   claim_types TEXT[],
   tier TEXT,
-  priority TEXT,
   claims TEXT,
   strength_notes TEXT,
   deadline_urgency TEXT,

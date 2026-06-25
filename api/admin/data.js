@@ -39,7 +39,7 @@ async function getStats() {
   return {
     totalLeads: leads.length,
     newLeads: leads.filter(l => l.status === 'new').length,
-    p1Leads: leads.filter(l => l.priority?.startsWith('P1') || l.tier === 'HIGH').length,
+    highLeads: leads.filter(l => l.tier === 'HIGH').length,
     referred: leads.filter(l => l.status === 'referred').length,
     activeCases: cases.filter(c => ['accepted', 'active'].includes(c.status)).length,
     totalCases: cases.length,
@@ -150,7 +150,7 @@ export default async function handler(req, res) {
         if (req.query.status) filter['status'] = `eq.${req.query.status}`;
         if (req.query.firm_id) filter['firm_id'] = `eq.${req.query.firm_id}`;
         const cases = await supa('GET', 'cases', {
-          select: '*,leads(id,name,email,phone,state,tier,priority,claims,strength_notes,deadline_urgency),firms(id,name,state,contact_name,contact_email)',
+          select: '*,leads(id,name,email,phone,state,tier,claims,strength_notes,deadline_urgency),firms(id,name,state,contact_name,contact_email)',
           order: 'referred_at.desc',
           filter,
         });
@@ -241,7 +241,7 @@ export default async function handler(req, res) {
     <table style="width:100%;border-collapse:collapse;font-size:0.88rem;margin-bottom:1.5rem">
       <tr><td style="color:#5C5A55;padding:5px 0;width:130px;vertical-align:top">Claims</td><td style="color:#1A1816">${lead.claims || '—'}</td></tr>
       <tr><td style="color:#5C5A55;padding:5px 0;vertical-align:top">Strength</td><td style="color:#1A1816">${lead.strength_notes || '—'}</td></tr>
-      <tr><td style="color:#5C5A55;padding:5px 0">Tier</td><td style="color:#1A1816;font-weight:600">${lead.tier || '—'} / ${lead.priority || '—'}</td></tr>
+      <tr><td style="color:#5C5A55;padding:5px 0">Tier</td><td style="color:#1A1816;font-weight:600">${lead.tier || '—'}</td></tr>
       <tr><td style="color:#5C5A55;padding:5px 0">Deadline</td><td style="color:${lead.deadline_urgency === 'urgent' ? '#993C1D' : '#1A1816'}">${lead.deadline_urgency || '—'}</td></tr>
       <tr><td style="color:#5C5A55;padding:5px 0;vertical-align:top">Evidence</td><td style="color:#1A1816">${lead.evidence || '—'}</td></tr>
       <tr><td style="color:#5C5A55;padding:5px 0;vertical-align:top">Red flags</td><td style="color:#993C1D">${lead.red_flags || 'None noted'}</td></tr>

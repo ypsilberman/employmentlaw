@@ -85,9 +85,9 @@ tr:hover td{background:var(--gray-100)}
 
 /* ── TIER BADGES ── */
 .badge{display:inline-block;padding:0.2rem 0.55rem;border-radius:3px;font-size:0.7rem;font-weight:600;letter-spacing:0.05em}
-.badge-HIGH,.badge-P1{background:var(--green-bg);color:var(--green)}
-.badge-MEDIUM,.badge-P2{background:var(--amber-bg);color:var(--amber)}
-.badge-LOW,.badge-P3{background:var(--gray-100);color:var(--gray-600)}
+.badge-HIGH{background:var(--green-bg);color:var(--green)}
+.badge-MEDIUM{background:var(--amber-bg);color:var(--amber)}
+.badge-LOW{background:var(--gray-100);color:var(--gray-600)}
 .badge-referred{background:#E8F0FE;color:#1A73E8}
 .badge-accepted{background:var(--green-bg);color:var(--green)}
 .badge-active{background:#E8F4FD;color:#0277BD}
@@ -407,8 +407,8 @@ async function loadStats() {
         <div class="stat-label">Unreviewed</div>
       </div>
       <div class="stat-card">
-        <div class="stat-num" style="color:var(--green)">${s.p1Leads}</div>
-        <div class="stat-label">High / P1</div>
+        <div class="stat-num" style="color:var(--green)">${s.highLeads}</div>
+        <div class="stat-label">High Tier</div>
       </div>
       <div class="stat-card">
         <div class="stat-num" style="color:#1A73E8">${s.referred}</div>
@@ -442,16 +442,16 @@ async function loadDashboard() {
     allLeads = leads;
     allCases = cases;
 
-    const newP1 = leads.filter(l => l.status === 'new' && (l.tier === 'HIGH' || l.priority?.startsWith('P1')));
-    const newP2 = leads.filter(l => l.status === 'new' && (l.tier === 'MEDIUM' || l.priority?.startsWith('P2')));
+    const newHigh = leads.filter(l => l.status === 'new' && l.tier === 'HIGH');
+    const newMedium = leads.filter(l => l.status === 'new' && l.tier === 'MEDIUM');
     const recent = leads.slice(0, 8);
 
     const staleDate = new Date(Date.now() - 30 * 86400000);
     const staleCases = cases.filter(c => ['referred','accepted','active'].includes(c.status) && new Date(c.updated_at || c.referred_at) < staleDate);
 
     const attention = [];
-    if (newP1.length) attention.push(`<div class="attention-card urgent"><div><div class="attention-label">⚡ ${newP1.length} unreviewed P1/High lead${newP1.length > 1 ? 's' : ''} — call immediately</div><div class="attention-sub">These leads are waiting for action</div></div><button class="btn btn-primary btn-sm" onclick="filterLeads('tier=HIGH',null);switchTab('leads')">View →</button></div>`);
-    if (newP2.length) attention.push(`<div class="attention-card"><div><div class="attention-label">📋 ${newP2.length} unreviewed P2/Medium lead${newP2.length > 1 ? 's' : ''}</div><div class="attention-sub">Follow up within 48 hours</div></div><button class="btn btn-outline btn-sm" onclick="filterLeads('tier=MEDIUM',null);switchTab('leads')">View →</button></div>`);
+    if (newHigh.length) attention.push(`<div class="attention-card urgent"><div><div class="attention-label">⚡ ${newHigh.length} unreviewed High-tier lead${newHigh.length > 1 ? 's' : ''} — review promptly</div><div class="attention-sub">Strong cases waiting for action</div></div><button class="btn btn-primary btn-sm" onclick="filterLeads('tier=HIGH',null);switchTab('leads')">View →</button></div>`);
+    if (newMedium.length) attention.push(`<div class="attention-card"><div><div class="attention-label">📋 ${newMedium.length} unreviewed Medium-tier lead${newMedium.length > 1 ? 's' : ''}</div><div class="attention-sub">Viable but incomplete — follow up</div></div><button class="btn btn-outline btn-sm" onclick="filterLeads('tier=MEDIUM',null);switchTab('leads')">View →</button></div>`);
     if (staleCases.length) attention.push(`<div class="attention-card"><div><div class="attention-label">⏰ ${staleCases.length} case${staleCases.length > 1 ? 's' : ''} with no update in 30+ days</div><div class="attention-sub">Consider sending a check-in</div></div><button class="btn btn-outline btn-sm" onclick="switchTab('reports')">Reports →</button></div>`);
 
     // Pipeline counts
@@ -617,7 +617,6 @@ function showLeadDetail(id) {
       <div class="detail-label">Triage</div>
       <div class="detail-grid">
         <div class="detail-key">Tier</div><div class="detail-val"><span class="badge badge-${lead.tier}">${lead.tier || '?'}</span></div>
-        <div class="detail-key">Priority</div><div class="detail-val">${lead.priority || '—'}</div>
         <div class="detail-key">Deadline</div><div class="detail-val">${lead.deadline_urgency || '—'}</div>
         <div class="detail-key">Value est.</div><div class="detail-val">${lead.estimated_value || '—'}</div>
         <div class="detail-key">Salary</div><div class="detail-val">${lead.salary || 'Not mentioned'}</div>
@@ -1046,10 +1045,7 @@ function showAddLeadModal() {
       <div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" id="al-email" placeholder="jane@email.com"></div>
       <div class="form-group"><label class="form-label">Phone</label><input class="form-input" id="al-phone" placeholder="(555) 000-0000"></div>
     </div>
-    <div class="form-row">
-      <div class="form-group"><label class="form-label">Tier</label><select class="form-select" id="al-tier"><option value="">Unknown</option><option>HIGH</option><option>MEDIUM</option><option>LOW</option></select></div>
-      <div class="form-group"><label class="form-label">Priority</label><select class="form-select" id="al-priority"><option value="">Unknown</option><option>P1-immediate</option><option>P2-48h</option><option>P3-nurture</option></select></div>
-    </div>
+    <div class="form-group"><label class="form-label">Tier</label><select class="form-select" id="al-tier"><option value="">Unknown</option><option>HIGH</option><option>MEDIUM</option><option>LOW</option></select></div>
     <div class="form-group"><label class="form-label">Claims identified</label><textarea class="form-textarea" id="al-claims" placeholder="Wrongful termination, retaliation…"></textarea></div>
     <div class="form-group"><label class="form-label">Strength notes</label><textarea class="form-textarea" id="al-notes" placeholder="Key facts and strengths…"></textarea></div>
   `, [
@@ -1069,7 +1065,6 @@ async function confirmAddLead() {
       email: document.getElementById('al-email').value.trim() || null,
       phone: document.getElementById('al-phone').value.trim() || null,
       tier: document.getElementById('al-tier').value || null,
-      priority: document.getElementById('al-priority').value || null,
       claims: document.getElementById('al-claims').value.trim() || null,
       strength_notes: document.getElementById('al-notes').value.trim() || null,
     });

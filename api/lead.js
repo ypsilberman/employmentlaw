@@ -15,6 +15,39 @@ function stripTriage(s) {
     .trim();
 }
 
+// Text alert for hot leads via Twilio. No-op unless TWILIO_ACCOUNT_SID,
+// TWILIO_AUTH_TOKEN and TWILIO_SMS_FROM are all set in Vercel — so the lead
+// flow is completely unaffected until Twilio is configured. Destination
+// defaults to the alert number but can be overridden with ALERT_SMS_TO.
+async function sendLeadSms(triage, formData, leadId) {
+  const SID = process.env.TWILIO_ACCOUNT_SID;
+  const TOKEN = process.env.TWILIO_AUTH_TOKEN;
+  const FROM = process.env.TWILIO_SMS_FROM;
+  const TO = process.env.ALERT_SMS_TO || '+19175015557';
+  if (!SID || !TOKEN || !FROM) return false;
+
+  const name = formData.name || 'Unknown';
+  const state = formData.state ? ` (${formData.state})` : '';
+  const claim = (triage.claims || 'employment claim').split(',')[0].split('(')[0].trim();
+  const link = leadId ? `workerrights.ai/admin?lead=${leadId}` : 'workerrights.ai/admin';
+  const body = `🔴 HIGH LEAD: ${name}${state} — ${claim}. ${link}`;
+
+  try {
+    const auth = Buffer.from(`${SID}:${TOKEN}`).toString('base64');
+    const params = new URLSearchParams({ To: TO, From: FROM, Body: body });
+    const r = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${SID}/Messages.json`, {
+      method: 'POST',
+      headers: { 'Authorization': `Basic ${auth}`, 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: params.toString(),
+    });
+    if (!r.ok) { console.error('Twilio SMS error:', await r.text()); return false; }
+    return true;
+  } catch (e) {
+    console.error('Twilio SMS send failed:', e.message);
+    return false;
+  }
+}
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -30,13 +63,13 @@ export default async function handler(req, res) {
   const FROM_EMAIL = process.env.FROM_EMAIL || 'leads@workerrights.ai';
 
   const tierColors = { HIGH: '#2E6B4F', MEDIUM: '#B07010', LOW: '#5C5A55' };
-  const priorityLabels = {
-    'P1-immediate': '🔴 P1 — Call immediately',
-    'P2-48h': '🟡 P2 — Follow up within 48 hours',
-    'P3-nurture': '⚪ P3 — Email nurture only'
+  const tierLabels = {
+    HIGH: '🟢 HIGH — strong, complete case',
+    MEDIUM: '🟡 MEDIUM — viable but incomplete',
+    LOW: '⚪ LOW — no viable basis'
   };
   const tierColor = tierColors[triage.tier] || '#5C5A55';
-  const priorityLabel = priorityLabels[triage.priority] || triage.priority;
+  const tierLabel = tierLabels[triage.tier] || triage.tier || 'Unrated';
   const timestamp = new Date().toLocaleString('en-US', { timeZone: 'America/New_York' });
 
   // ── Save to Supabase ────────────────────────────────────────────────────────
@@ -61,7 +94,6 @@ export default async function handler(req, res) {
           employer_size: formData.empSize || null,
           claim_types: formData.claimTypes || [],
           tier: triage.tier || null,
-          priority: triage.priority || null,
           claims: triage.claims || null,
           strength_notes: triage.strengthNotes || null,
           deadline_urgency: triage.deadlineUrgency || null,
@@ -81,6 +113,12 @@ export default async function handler(req, res) {
     }
   } catch (e) {
     console.error('Supabase save error:', e.message);
+  }
+
+  // ── Text alert for HIGH-tier leads ──────────────────────────────────────────
+  const isHotLead = triage.tier === 'HIGH';
+  if (isHotLead) {
+    await sendLeadSms(triage, formData, savedLeadId);
   }
 
   // ── Render intake transcript ────────────────────────────────────────────────
@@ -123,8 +161,8 @@ export default async function handler(req, res) {
       <div style="font-size:0.85rem;color:rgba(255,255,255,0.55);margin-top:4px">${timestamp} ET</div>
     </div>
     <div style="background:${tierColor};padding:0.9rem 2rem">
-      <div style="color:white;font-weight:600;font-size:0.95rem">${priorityLabel}</div>
-      <div style="color:rgba(255,255,255,0.75);font-size:0.8rem;margin-top:2px">Tier: ${triage.tier} · Value: ${triage.estimatedValue || 'unknown'} · Deadline: ${triage.deadlineUrgency || 'unknown'}</div>
+      <div style="color:white;font-weight:600;font-size:0.95rem">${tierLabel}</div>
+      <div style="color:rgba(255,255,255,0.75);font-size:0.8rem;margin-top:2px">Value: ${triage.estimatedValue || 'unknown'} · Deadline: ${triage.deadlineUrgency || 'unknown'}</div>
     </div>
     <div style="padding:1.75rem 2rem">
       <div style="margin-bottom:1.5rem">
@@ -174,7 +212,7 @@ export default async function handler(req, res) {
 </body>
 </html>`;
 
-  const textBody = `NEW LEAD — WorkerRights.ai\n${priorityLabel}\nTier: ${triage.tier} | Value: ${triage.estimatedValue} | Deadline: ${triage.deadlineUrgency}\n\nCONTACT\nName: ${formData.name}\nEmail: ${formData.email}\nPhone: ${formData.phone || 'Not provided'}\nState: ${formData.state}\n\nAI ASSESSMENT\nClaims: ${triage.claims}\nStrength: ${triage.strengthNotes}\nRed flags: ${triage.redFlags || 'None'}\n\nRECOMMENDED ACTION\n${triage.recommendedAction}${transcriptText ? `\n\nFULL INTAKE TRANSCRIPT\n${transcriptText}` : ''}`.trim();
+  const textBody = `NEW LEAD — WorkerRights.ai\n${tierLabel} | Value: ${triage.estimatedValue} | Deadline: ${triage.deadlineUrgency}\n\nCONTACT\nName: ${formData.name}\nEmail: ${formData.email}\nPhone: ${formData.phone || 'Not provided'}\nState: ${formData.state}\n\nAI ASSESSMENT\nClaims: ${triage.claims}\nStrength: ${triage.strengthNotes}\nRed flags: ${triage.redFlags || 'None'}\n\nRECOMMENDED ACTION\n${triage.recommendedAction}${transcriptText ? `\n\nFULL INTAKE TRANSCRIPT\n${transcriptText}` : ''}`.trim();
 
   try {
     const emailRes = await fetch('https://api.resend.com/emails', {
