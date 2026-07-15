@@ -68,11 +68,15 @@ CREATE TABLE IF NOT EXISTS status_updates (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Disable RLS (private admin tool, all access through service key)
-ALTER TABLE firms DISABLE ROW LEVEL SECURITY;
-ALTER TABLE leads DISABLE ROW LEVEL SECURITY;
-ALTER TABLE cases DISABLE ROW LEVEL SECURITY;
-ALTER TABLE status_updates DISABLE ROW LEVEL SECURITY;
+-- Enable RLS on all tables. No policies are defined on purpose: that means the
+-- public/anon API key gets ZERO access (deny-by-default). All legitimate access
+-- is server-side through the serverless functions, which use the service-role
+-- key — and the service role BYPASSES RLS. So the app keeps working unchanged
+-- while the tables are closed to anyone hitting the public REST API.
+ALTER TABLE firms ENABLE ROW LEVEL SECURITY;
+ALTER TABLE leads ENABLE ROW LEVEL SECURITY;
+ALTER TABLE cases ENABLE ROW LEVEL SECURITY;
+ALTER TABLE status_updates ENABLE ROW LEVEL SECURITY;
 
 -- Migrations (safe to run on existing databases — adds columns if missing)
 ALTER TABLE firms ADD COLUMN IF NOT EXISTS states TEXT[];
