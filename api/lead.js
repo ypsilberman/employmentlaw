@@ -15,35 +15,39 @@ function stripTriage(s) {
     .trim();
 }
 
-// Text alert for hot leads via Twilio. No-op unless TWILIO_ACCOUNT_SID,
-// TWILIO_AUTH_TOKEN and TWILIO_SMS_FROM are all set in Vercel — so the lead
-// flow is completely unaffected until Twilio is configured. Destination
-// defaults to the alert number but can be overridden with ALERT_SMS_TO.
-async function sendLeadSms(triage, formData, leadId) {
-  const SID = process.env.TWILIO_ACCOUNT_SID;
-  const TOKEN = process.env.TWILIO_AUTH_TOKEN;
-  const FROM = process.env.TWILIO_SMS_FROM;
-  const TO = process.env.ALERT_SMS_TO || '+19175015557';
-  if (!SID || !TOKEN || !FROM) return false;
+// Push alert for hot leads via Pushover. No-op unless PUSHOVER_TOKEN and
+// PUSHOVER_USER are set in Vercel — so the lead flow is completely unaffected
+// until Pushover is configured. The notification is tappable and deep-links to
+// the lead in the admin.
+async function sendLeadPush(triage, formData, leadId) {
+  const TOKEN = process.env.PUSHOVER_TOKEN;
+  const USER = process.env.PUSHOVER_USER;
+  if (!TOKEN || !USER) return false;
 
   const name = formData.name || 'Unknown';
   const state = formData.state ? ` (${formData.state})` : '';
   const claim = (triage.claims || 'employment claim').split(',')[0].split('(')[0].trim();
-  const link = leadId ? `workerrights.ai/admin?lead=${leadId}` : 'workerrights.ai/admin';
-  const body = `🔴 HIGH LEAD: ${name}${state} — ${claim}. ${link}`;
+  const link = leadId ? `https://workerrights.ai/admin?lead=${leadId}` : 'https://workerrights.ai/admin';
 
   try {
-    const auth = Buffer.from(`${SID}:${TOKEN}`).toString('base64');
-    const params = new URLSearchParams({ To: TO, From: FROM, Body: body });
-    const r = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${SID}/Messages.json`, {
+    const params = new URLSearchParams({
+      token: TOKEN,
+      user: USER,
+      title: '🔴 New HIGH lead',
+      message: `${name}${state} — ${claim}`,
+      url: link,
+      url_title: 'Open in admin',
+      priority: '1', // high priority: bypasses the recipient's quiet hours
+    });
+    const r = await fetch('https://api.pushover.net/1/messages.json', {
       method: 'POST',
-      headers: { 'Authorization': `Basic ${auth}`, 'Content-Type': 'application/x-www-form-urlencoded' },
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: params.toString(),
     });
-    if (!r.ok) { console.error('Twilio SMS error:', await r.text()); return false; }
+    if (!r.ok) { console.error('Pushover error:', await r.text()); return false; }
     return true;
   } catch (e) {
-    console.error('Twilio SMS send failed:', e.message);
+    console.error('Pushover send failed:', e.message);
     return false;
   }
 }
@@ -115,10 +119,10 @@ export default async function handler(req, res) {
     console.error('Supabase save error:', e.message);
   }
 
-  // ── Text alert for HIGH-tier leads ──────────────────────────────────────────
+  // ── Push alert for HIGH-tier leads ──────────────────────────────────────────
   const isHotLead = triage.tier === 'HIGH';
   if (isHotLead) {
-    await sendLeadSms(triage, formData, savedLeadId);
+    await sendLeadPush(triage, formData, savedLeadId);
   }
 
   // ── Render intake transcript ────────────────────────────────────────────────
