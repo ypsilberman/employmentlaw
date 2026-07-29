@@ -116,6 +116,22 @@ The WorkerRights.ai Team`;
   }
 }
 
+function escapeHtml(s) {
+  return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// Wrap an admin-edited plain-text referral in a simple branded HTML shell.
+function referralHtmlShell(bodyText) {
+  const safe = escapeHtml(bodyText).replace(/\n/g, '<br>');
+  return `<!DOCTYPE html><html><body style="margin:0;background:#f4f4f0;padding:2rem">
+  <div style="max-width:600px;margin:0 auto;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08)">
+    <div style="background:#0D1B2A;padding:1rem 2rem;border-bottom:3px solid #C9A84C">
+      <div style="font-size:0.7rem;letter-spacing:0.15em;text-transform:uppercase;color:#C9A84C">WorkerRights.ai — Referral</div>
+    </div>
+    <div style="padding:1.75rem 2rem;font-family:Georgia,'Times New Roman',serif;font-size:0.95rem;line-height:1.7;color:#1A1816">${safe}</div>
+  </div></body></html>`;
+}
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE, OPTIONS');
@@ -192,7 +208,7 @@ export default async function handler(req, res) {
 
       // Refer a lead to a firm → creates case + sends intro email
       if (resource === 'cases') {
-        const { lead_id, firm_id, expected_fee, note } = req.body;
+        const { lead_id, firm_id, expected_fee, note, email_subject, email_body, skip_email } = req.body;
         if (!lead_id || !firm_id) return res.status(400).json({ error: 'lead_id and firm_id required' });
 
         const [lead] = await supa('GET', 'leads', { select: '*', id: lead_id });
@@ -215,7 +231,7 @@ export default async function handler(req, res) {
 
         // Record status update
         await supa('POST', 'status_updates', {
-          body: { case_id: newCase.id, status: 'referred', update_text: `Referred to ${firm.name}`, source: 'admin' }
+          body: { case_id: newCase.id, status: 'referred', update_text: skip_email ? `Referred to ${firm.name} (manual — no email sent)` : `Referred to ${firm.name}`, source: 'admin' }
         });
 
         // Send intro email to firm
@@ -260,19 +276,29 @@ export default async function handler(req, res) {
   </div>
 </div></body></html>`;
 
-        try {
-          await fetch('https://api.resend.com/emails', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${process.env.RESEND_API_KEY}` },
-            body: JSON.stringify({
-              from: process.env.FROM_EMAIL || 'leads@workerrights.ai',
-              to: firm.contact_email,
-              subject: `[WorkerRights.ai Referral] ${lead.name || 'New Client'} — ${lead.state || ''} — ${(lead.claims || 'Employment claim').split(',')[0].split('(')[0].trim()}`,
-              html: emailHtml,
-            })
-          });
-        } catch (e) {
-          console.error('Email send error:', e.message);
+        // Send the intro email — unless the admin chose to refer manually.
+        if (!skip_email) {
+          // Prefer the admin-reviewed subject/body; fall back to the auto-built email.
+          const useCustom = email_body && String(email_body).trim();
+          const outSubject = useCustom
+            ? (email_subject && email_subject.trim() ? email_subject.trim() : `[WorkerRights.ai Referral] ${lead.name || 'New Client'}`)
+            : `[WorkerRights.ai Referral] ${lead.name || 'New Client'} — ${lead.state || ''} — ${(lead.claims || 'Employment claim').split(',')[0].split('(')[0].trim()}`;
+
+          try {
+            await fetch('https://api.resend.com/emails', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${process.env.RESEND_API_KEY}` },
+              body: JSON.stringify({
+                from: process.env.FROM_EMAIL || 'leads@workerrights.ai',
+                to: firm.contact_email,
+                subject: outSubject,
+                html: useCustom ? referralHtmlShell(email_body) : emailHtml,
+                ...(useCustom ? { text: String(email_body) } : {}),
+              })
+            });
+          } catch (e) {
+            console.error('Email send error:', e.message);
+          }
         }
 
         return res.status(200).json({ success: true, case: newCase });

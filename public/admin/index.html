@@ -683,26 +683,118 @@ async function showReferModal(leadId) {
       <label class="form-label">Expected referral fee ($)</label>
       <input class="form-input" type="number" id="refer-fee" placeholder="e.g. 7500">
     </div>
-    <div class="form-group">
-      <label class="form-label">Note to firm (optional)</label>
-      <textarea class="form-textarea" id="refer-note" placeholder="Any context you want to pass along…"></textarea>
-    </div>
-    <div style="font-size:0.75rem;color:var(--gray-400);line-height:1.6">An introduction email with the full triage summary will be sent to the firm's contact email automatically.</div>
+    <div style="font-size:0.75rem;color:var(--gray-400);line-height:1.6">You'll review and edit the full email on the next step — nothing is sent until you approve it.</div>
   `, [
     { label: 'Cancel', cls: 'btn-outline', action: 'closeModal()' },
+    { label: 'Refer without email', cls: 'btn-outline', action: `referWithoutEmail('${leadId}')` },
+    { label: 'Preview email →', cls: 'btn-gold', action: `previewReferral('${leadId}')` },
+  ]);
+}
+
+function buildReferralDraft(lead, firm, fee) {
+  const firmFirst = firm.contact_name ? firm.contact_name.split(' ')[0] : 'there';
+  const feePct = firm.fee_percentage != null ? firm.fee_percentage : 25;
+  const feeLine = fee
+    ? `Expected referral fee: $${Number(fee).toLocaleString()} (${feePct}% of the contingency fee).`
+    : `Referral fee: ${feePct}% of your contingency fee, per our referral agreement.`;
+  const topClaim = (lead.claims || 'Employment claim').split(',')[0].split('(')[0].trim();
+  const subject = `[WorkerRights.ai Referral] ${lead.name || 'New Client'} — ${lead.state || ''} — ${topClaim}`;
+  const body =
+`Hi ${firmFirst},
+
+I'd like to refer a prospective client to your firm. The details are below — let me know if you'd like to take it on.
+
+CLIENT
+Name: ${lead.name || '—'}
+Email: ${lead.email || '—'}
+Phone: ${lead.phone || 'Not provided'}
+State: ${lead.state || '—'}
+
+CASE ASSESSMENT
+Claims: ${lead.claims || '—'}
+Strength notes: ${lead.strength_notes || '—'}
+Tier: ${lead.tier || '—'}
+Deadline urgency: ${lead.deadline_urgency || '—'}
+Evidence: ${lead.evidence || '—'}
+Red flags: ${lead.red_flags || 'None noted'}
+
+FEE
+${feeLine}
+
+Please reply to confirm receipt and let me know if you'll be taking this case.
+
+Best regards,
+Yaacov Silberman
+WorkerRights.ai`;
+  return { subject, body };
+}
+
+function previewReferral(leadId) {
+  const firmId = document.getElementById('refer-firm').value;
+  const fee = document.getElementById('refer-fee').value;
+  if (!firmId) { toast('Please select a firm', 'error'); return; }
+  const lead = allLeads.find(l => l.id === leadId);
+  const firm = allFirms.find(f => f.id === firmId);
+  if (!lead || !firm) { toast('Lead or firm not found', 'error'); return; }
+  const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const { subject, body } = buildReferralDraft(lead, firm, fee);
+  openModal(`Referral to ${firm.name}`, `
+    <div style="background:var(--gray-100);border-radius:var(--radius);padding:0.6rem 0.9rem;margin-bottom:1rem;font-size:0.8rem;color:var(--gray-600)">
+      To: <strong>${esc(firm.contact_email) || '— no contact email on file —'}</strong>
+    </div>
+    <input type="hidden" id="refer-firm-id" value="${firmId}">
+    <input type="hidden" id="refer-fee-hidden" value="${esc(fee)}">
+    <div class="form-group">
+      <label class="form-label">Subject</label>
+      <input class="form-input" id="refer-subject" value="${esc(subject)}">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Email body — edit freely before sending</label>
+      <textarea class="form-textarea" id="refer-body" style="min-height:320px;line-height:1.6">${esc(body)}</textarea>
+    </div>
+    <div style="font-size:0.75rem;color:var(--gray-400);line-height:1.6">Nothing has been sent yet. "Send referral" emails exactly this to ${esc(firm.contact_email || 'the firm')} and creates the case.</div>
+  `, [
+    { label: '← Back', cls: 'btn-outline', action: `showReferModal('${leadId}')` },
+    { label: 'Refer without sending', cls: 'btn-outline', action: `referWithoutEmail('${leadId}')` },
     { label: 'Send referral →', cls: 'btn-gold', action: `confirmRefer('${leadId}')` },
   ]);
 }
 
 async function confirmRefer(leadId) {
-  const firmId = document.getElementById('refer-firm').value;
-  const fee = document.getElementById('refer-fee').value;
-  const note = document.getElementById('refer-note').value;
+  const firmId = document.getElementById('refer-firm-id').value;
+  const fee = document.getElementById('refer-fee-hidden').value;
+  const subject = document.getElementById('refer-subject').value.trim();
+  const body = document.getElementById('refer-body').value.trim();
+  if (!firmId) { toast('Please select a firm', 'error'); return; }
+  if (!body) { toast('The email body is empty', 'error'); return; }
+  closeModal();
+  try {
+    await api('/api/admin/data?resource=cases', 'POST', {
+      lead_id: leadId, firm_id: firmId, expected_fee: fee || null,
+      email_subject: subject || null, email_body: body,
+    });
+    toast('Referral sent', 'success');
+    loadLeads(currentLeadFilter);
+    loadCases();
+    loadStats();
+    loadDashboard();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+// Mark a lead referred + create the case WITHOUT sending any email — the user
+// handles outreach manually. Works from either the firm-select step or preview.
+async function referWithoutEmail(leadId) {
+  const firmEl = document.getElementById('refer-firm-id') || document.getElementById('refer-firm');
+  const feeEl = document.getElementById('refer-fee-hidden') || document.getElementById('refer-fee');
+  const firmId = firmEl ? firmEl.value : '';
+  const fee = feeEl ? feeEl.value : '';
   if (!firmId) { toast('Please select a firm', 'error'); return; }
   closeModal();
   try {
-    await api('/api/admin/data?resource=cases', 'POST', { lead_id: leadId, firm_id: firmId, expected_fee: fee || null, note: note || null });
-    toast('Referral sent successfully', 'success');
+    await api('/api/admin/data?resource=cases', 'POST', {
+      lead_id: leadId, firm_id: firmId, expected_fee: fee || null, skip_email: true,
+    });
+    toast('Marked referred — no email sent', 'success');
     loadLeads(currentLeadFilter);
     loadCases();
     loadStats();
